@@ -12,6 +12,8 @@ import {
   computeProjectEscrowSplit,
   EDTECH_SAC_CODE,
 } from "@elluminar/domain-commerce";
+import { identityRouter } from "./routes/identity";
+import { webhooksRouter } from "./routes/webhooks";
 
 const QuoteRequestSchema = z.object({
   itemType: z.enum(["COURSE", "PROJECT"]),
@@ -26,6 +28,8 @@ const QuoteRequestSchema = z.object({
 
 export const apiApp = new Hono()
   .basePath("/api/v2")
+  .route("/identity", identityRouter)
+  .route("/webhooks", webhooksRouter)
   .get("/health", (c) => {
     return c.json({
       status: "ok",

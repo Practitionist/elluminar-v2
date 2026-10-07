@@ -13,6 +13,7 @@
   "dependencies": {
     "@better-auth/sso": "^1.7.7",
     "@elluminar/db": "workspace:*",
+    "@elluminar/domain-identity": "workspace:*",
     "@elluminar/domain-ai-mentorship": "workspace:*",
     "@elluminar/domain-artifacts": "workspace:*",
     "@elluminar/domain-commerce": "workspace:*",

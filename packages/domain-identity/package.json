@@ -1,0 +1,19 @@
+{
+  "name": "@elluminar/domain-identity",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@better-auth/sso": "^1.7.7",
+    "@elluminar/db": "workspace:*",
+    "@upstash/redis": "^1.39.0",
+    "better-auth": "^1.7.7",
+    "zod": "^4.6.5"
+  }
+}
