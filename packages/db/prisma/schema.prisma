@@ -1,0 +1,1023 @@
+// Elluminar v2 — Clean-Sheet Hexagonal Database Schema
+// Target: Supabase PostgreSQL (ap-south-1) via @prisma/adapter-pg
+
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+// ============================================================================
+// 1. IDENTITY, AUTHENTICATION & MULTI-TENANCY
+// ============================================================================
+
+enum PlatformRole {
+  LEARNER
+  CREATOR
+  MENTOR
+  STAFF
+  ADMIN
+}
+
+enum OrganizationType {
+  CREATOR
+  ENTERPRISE
+  UNIVERSITY
+  HIRING_PARTNER
+}
+
+enum MemberRole {
+  OWNER
+  ADMIN
+  INSTRUCTOR
+  MENTOR
+  LEARNER
+  BILLING_MANAGER
+}
+
+model User {
+  id            String       @id @default(cuid())
+  email         String       @unique
+  emailVerified Boolean      @default(false)
+  name          String
+  image         String?
+  role          PlatformRole @default(LEARNER)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  sessions            Session[]
+  accounts            Account[]
+  twoFactor           TwoFactor?
+  memberships         Member[]
+  authoredCourses     Course[]
+  authoredProjects    Project[]
+  orders              Order[]
+  enrollments         Enrollment[]
+  licenseSeats        LicenseSeat[]
+  projectInstances    ProjectInstance[]
+  mentorProfile       MentorProfile?
+  mentorAssignments   MentorAssignment[]
+  reviewsGiven        ProjectReview[]
+  aiWallet            AiWallet?
+  credentials         Credential[]
+}
+
+model Session {
+  id                   String   @id @default(cuid())
+  userId               String
+  token                String   @unique
+  expiresAt            DateTime
+  ipAddress            String?
+  userAgent            String?
+  activeOrganizationId String?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  userId                String
+  accountId             String
+  providerId            String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([providerId, accountId])
+  @@index([userId])
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+}
+
+model TwoFactor {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  secret      String
+  backupCodes String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Organization {
+  id           String           @id @default(cuid())
+  slug         String           @unique
+  name         String
+  logoUrl      String?
+  type         OrganizationType
+  gstin        String?
+  stateCode    String?
+  billingEmail String?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  members              Member[]
+  ssoProviders         EnterpriseSsoProvider[]
+  courses              Course[]
+  roleTracks           RoleTrack[]
+  projects             Project[]
+  prices               Price[]
+  coupons              Coupon[]
+  subscriptionPlans    SubscriptionPlan[]
+  orders               Order[]
+  invoiceSeries        InvoiceSeries[]
+  orgLicenses          OrgLicense[]
+  sponsoredSimulations SponsoredSimulation[]
+}
+
+model Member {
+  id             String     @id @default(cuid())
+  organizationId String
+  userId         String
+  role           MemberRole @default(LEARNER)
+  createdAt      DateTime   @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, userId])
+  @@index([userId])
+}
+
+/// Strictly scoped to ENTERPRISE & UNIVERSITY tenants via application domain guard
+model EnterpriseSsoProvider {
+  id             String   @id @default(cuid())
+  organizationId String
+  providerId     String   @unique
+  issuer         String
+  domain         String   @unique
+  oidcConfig     Json?
+  samlConfig     Json?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+}
+
+// ============================================================================
+// 2. CATALOG, CURRICULUM & MONETIZATION CONFIGURATION
+// ============================================================================
+
+enum CourseDeliveryMode {
+  LIVE_COHORT
+  SELF_PACED
+}
+
+enum CohortStatus {
+  UPCOMING
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum ProjectTier {
+  SPRINT
+  CAPSTONE
+  FLAGSHIP
+}
+
+enum MentoringModality {
+  TIER_1_TEXT
+  TIER_2_CHAT_VOICE_CANVAS
+  TIER_3_VIDEO_DEFENSE
+}
+
+enum ArtifactKind {
+  SYSTEM_CANVAS
+  CODE_SANDBOX
+  DOCUMENT_REDLINE
+  SPREADSHEET_GRID
+  MEDIA_CRITIQUE
+}
+
+enum CouponDiscountType {
+  PERCENTAGE_BPS
+  FIXED_MINOR
+}
+
+enum BillingInterval {
+  MONTHLY
+  ANNUAL
+}
+
+model Course {
+  id                         String             @id @default(cuid())
+  organizationId             String
+  authorId                   String
+  slug                       String
+  title                      String
+  summary                    String?
+  deliveryMode               CourseDeliveryMode @default(SELF_PACED)
+  includedInSubscriptionPool Boolean            @default(false)
+  isPublished                Boolean            @default(false)
+  createdAt                  DateTime           @default(now())
+  updatedAt                  DateTime           @updatedAt
+
+  organization   Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  author         User            @relation(fields: [authorId], references: [id])
+  cohorts        Cohort[]
+  sections       Section[]
+  roleTrackItems RoleTrackItem[]
+  prices         Price[]
+  orderItems     OrderItem[]
+  enrollments    Enrollment[]
+  credentials    Credential[]
+
+  @@unique([organizationId, slug])
+  @@index([authorId])
+}
+
+model Cohort {
+  id            String       @id @default(cuid())
+  courseId      String
+  code          String
+  title         String
+  startsAt      DateTime
+  endsAt        DateTime
+  capacity      Int
+  enrolledCount Int          @default(0)
+  status        CohortStatus @default(UPCOMING)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  course      Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  orderItems  OrderItem[]
+  enrollments Enrollment[]
+
+  @@unique([courseId, code])
+}
+
+model Section {
+  id        String   @id @default(cuid())
+  courseId  String
+  sortOrder Int
+  title     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  course  Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons Lesson[]
+
+  @@unique([courseId, sortOrder])
+}
+
+model Lesson {
+  id              String   @id @default(cuid())
+  sectionId       String
+  sortOrder       Int
+  title           String
+  contentMarkdown String?
+  videoR2Key      String?
+  durationSeconds Int?
+  isPreview       Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  section Section @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+
+  @@unique([sectionId, sortOrder])
+}
+
+model RoleTrack {
+  id             String   @id @default(cuid())
+  organizationId String
+  slug           String
+  title          String
+  description    String?
+  isPublished    Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  items        RoleTrackItem[]
+
+  @@unique([organizationId, slug])
+}
+
+model RoleTrackItem {
+  id          String   @id @default(cuid())
+  roleTrackId String
+  sortOrder   Int
+  courseId    String?
+  projectId   String?
+  createdAt   DateTime @default(now())
+
+  roleTrack RoleTrack @relation(fields: [roleTrackId], references: [id], onDelete: Cascade)
+  course    Course?   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  project   Project?  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([roleTrackId, sortOrder])
+}
+
+model Project {
+  id                  String       @id @default(cuid())
+  organizationId      String
+  authorId            String
+  slug                String
+  title               String
+  briefMarkdown       String
+  tier                ProjectTier
+  defaultArtifactKind ArtifactKind @default(SYSTEM_CANVAS)
+  isPublished         Boolean      @default(false)
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+
+  organization         Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  author               User                  @relation(fields: [authorId], references: [id])
+  milestones           Milestone[]
+  rubric               Rubric?
+  roleTrackItems       RoleTrackItem[]
+  prices               Price[]
+  orderItems           OrderItem[]
+  projectInstances     ProjectInstance[]
+  sponsoredSimulations SponsoredSimulation[]
+
+  @@unique([organizationId, slug])
+  @@index([authorId])
+}
+
+model Milestone {
+  id                   String       @id @default(cuid())
+  projectId            String
+  sortOrder            Int
+  title                String
+  instructionsMarkdown String
+  requiredArtifactKind ArtifactKind
+  dueOffsetDays        Int?
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
+
+  project     Project               @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  submissions MilestoneSubmission[]
+
+  @@unique([projectId, sortOrder])
+}
+
+model Rubric {
+  id              String   @id @default(cuid())
+  projectId       String   @unique
+  passingScoreBps Int      @default(7000)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  project  Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  criteria RubricCriterion[]
+}
+
+model RubricCriterion {
+  id          String   @id @default(cuid())
+  rubricId    String
+  sortOrder   Int
+  title       String
+  description String?
+  weightBps   Int
+  maxScore    Int      @default(100)
+  createdAt   DateTime @default(now())
+
+  rubric Rubric @relation(fields: [rubricId], references: [id], onDelete: Cascade)
+
+  @@unique([rubricId, sortOrder])
+}
+
+model Price {
+  id                 String             @id @default(cuid())
+  organizationId     String
+  courseId           String?
+  projectId          String?
+  subscriptionPlanId String?
+  aiCreditPackId     String?
+  currency           String             @default("INR")
+  amountMinor        BigInt
+  mentoringModality  MentoringModality?
+  authorRoyaltyBps   Int                @default(0)
+  mentorShareBps     Int                @default(0)
+  isActive           Boolean            @default(true)
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  organization     Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  course           Course?           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  project          Project?          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  subscriptionPlan SubscriptionPlan? @relation(fields: [subscriptionPlanId], references: [id], onDelete: Cascade)
+  aiCreditPack     AiCreditPack?     @relation(fields: [aiCreditPackId], references: [id], onDelete: Cascade)
+  orderItems       OrderItem[]
+
+  @@index([organizationId, isActive])
+}
+
+/// Strictly tenant-scoped coupon (`@@unique([organizationId, code])`)
+model Coupon {
+  id             String             @id @default(cuid())
+  organizationId String
+  code           String
+  discountType   CouponDiscountType
+  discountValue  BigInt
+  maxRedemptions Int?
+  redeemedCount  Int                @default(0)
+  expiresAt      DateTime?
+  isActive       Boolean            @default(true)
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  orders       Order[]
+
+  @@unique([organizationId, code])
+}
+
+model SubscriptionPlan {
+  id                  String          @id @default(cuid())
+  organizationId      String
+  slug                String
+  title               String
+  billingInterval     BillingInterval
+  creatorPoolShareBps Int             @default(8000)
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  prices       Price[]
+
+  @@unique([organizationId, slug])
+}
+
+model AiCreditPack {
+  id           String   @id @default(cuid())
+  slug         String   @unique
+  title        String
+  creditsGrant BigInt
+  bonusCredits BigInt   @default(0)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  prices Price[]
+}
+
+// ============================================================================
+// 3. COMMERCE, TRUE DOUBLE-ENTRY LEDGER & INDIA B2B GST ENGINE
+// ============================================================================
+
+enum OrderStatus {
+  PENDING
+  PAID
+  FREE_COMPLETED
+  REFUNDED
+  CANCELLED
+}
+
+enum OrderItemType {
+  COURSE
+  PROJECT
+  SUBSCRIPTION
+  AI_CREDIT_PACK
+}
+
+enum PaymentGateway {
+  RAZORPAY
+  FREE_CHECKOUT
+  ENTERPRISE_INVOICE
+}
+
+enum PaymentStatus {
+  INITIATED
+  CAPTURED
+  FAILED
+  REFUNDED
+}
+
+enum RefundStatus {
+  PENDING
+  PROCESSED
+  FAILED_REVERSED
+}
+
+enum InvoiceDocType {
+  TAX_INVOICE
+  CREDIT_NOTE
+}
+
+enum LedgerOwnerType {
+  PLATFORM
+  TENANT
+  MENTOR
+  USER
+}
+
+enum LedgerBucket {
+  ESCROW_LOCKED
+  AVAILABLE
+}
+
+enum PayoutStatus {
+  PENDING
+  PROCESSING
+  SETTLED
+  FAILED
+}
+
+model Order {
+  id                String      @id @default(cuid())
+  organizationId    String
+  buyerUserId       String
+  couponId          String?
+  status            OrderStatus @default(PENDING)
+  currency          String      @default("INR")
+  subtotalMinor     BigInt
+  discountMinor     BigInt      @default(0)
+  taxableMinor      BigInt
+  taxMinor          BigInt
+  totalMinor        BigInt
+  buyerGstin        String?
+  buyerStateCode    String
+  supplierStateCode String      @default("29")
+  version           Int         @default(1)
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  buyer        User         @relation(fields: [buyerUserId], references: [id])
+  coupon       Coupon?      @relation(fields: [couponId], references: [id])
+  items        OrderItem[]
+  payments     Payment[]
+  refunds      Refund[]
+  invoices     Invoice[]
+
+  @@index([buyerUserId, status])
+  @@index([organizationId, createdAt])
+}
+
+model OrderItem {
+  id               String        @id @default(cuid())
+  orderId          String
+  priceId          String
+  itemType         OrderItemType
+  courseId         String?
+  projectId        String?
+  cohortId         String?
+  quantity         Int           @default(1)
+  unitAmountMinor  BigInt
+  totalAmountMinor BigInt
+  createdAt        DateTime      @default(now())
+
+  order           Order            @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  price           Price            @relation(fields: [priceId], references: [id])
+  course          Course?          @relation(fields: [courseId], references: [id])
+  project         Project?         @relation(fields: [projectId], references: [id])
+  cohort          Cohort?          @relation(fields: [cohortId], references: [id])
+  projectInstance ProjectInstance?
+
+  @@index([orderId])
+}
+
+model Payment {
+  id               String         @id @default(cuid())
+  orderId          String
+  gateway          PaymentGateway
+  gatewayOrderId   String?
+  gatewayPaymentId String         @unique
+  status           PaymentStatus  @default(INITIATED)
+  amountMinor      BigInt
+  capturedAt       DateTime?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  order   Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  refunds Refund[]
+
+  @@index([orderId])
+}
+
+model Refund {
+  id                    String       @id @default(cuid())
+  paymentId             String
+  orderId               String
+  amountMinor           BigInt
+  reason                String
+  status                RefundStatus @default(PENDING)
+  gatewayRefundId       String?      @unique
+  preRefundSnapshot     Json
+  compensatingJournalId String?      @unique
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
+
+  payment  Payment   @relation(fields: [paymentId], references: [id])
+  order    Order     @relation(fields: [orderId], references: [id])
+  invoices Invoice[]
+}
+
+model InvoiceSeries {
+  id              String   @id @default(cuid())
+  organizationId  String
+  financialYear   String
+  prefix          String
+  currentSequence Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  invoices     Invoice[]
+
+  @@unique([organizationId, financialYear, prefix])
+}
+
+/// Gapless India B2B GST Tax Invoice / Credit Note (SAC 999293)
+model Invoice {
+  id                     String         @id @default(cuid())
+  invoiceSeriesId        String
+  orderId                String
+  refundId               String?
+  invoiceNumber          String         @unique
+  docType                InvoiceDocType
+  sacCode                String         @default("999293")
+  placeOfSupplyStateCode String
+  isInterState           Boolean
+  taxableAmountMinor     BigInt
+  cgstRateBps            Int
+  cgstAmountMinor        BigInt
+  sgstRateBps            Int
+  sgstAmountMinor        BigInt
+  igstRateBps            Int
+  igstAmountMinor        BigInt
+  totalAmountMinor       BigInt
+  issuedAt               DateTime       @default(now())
+
+  series InvoiceSeries @relation(fields: [invoiceSeriesId], references: [id])
+  order  Order         @relation(fields: [orderId], references: [id])
+  refund Refund?       @relation(fields: [refundId], references: [id])
+
+  @@index([orderId])
+}
+
+model LedgerAccount {
+  id           String          @id @default(cuid())
+  ownerType    LedgerOwnerType
+  ownerId      String
+  bucket       LedgerBucket
+  currency     String          @default("INR")
+  balanceMinor BigInt          @default(0)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  entries LedgerEntry[]
+  payouts Payout[]
+
+  @@unique([ownerType, ownerId, bucket, currency])
+}
+
+model LedgerJournal {
+  id             String   @id @default(cuid())
+  idempotencyKey String   @unique
+  referenceType  String
+  referenceId    String
+  description    String
+  createdAt      DateTime @default(now())
+
+  entries LedgerEntry[]
+  payout  Payout?
+
+  @@index([referenceType, referenceId])
+}
+
+/// Invariant enforced by application & triggers: SUM(amountMinor) === 0n per journalId
+model LedgerEntry {
+  id          String   @id @default(cuid())
+  journalId   String
+  accountId   String
+  amountMinor BigInt
+  createdAt   DateTime @default(now())
+
+  journal LedgerJournal @relation(fields: [journalId], references: [id], onDelete: Cascade)
+  account LedgerAccount @relation(fields: [accountId], references: [id])
+
+  @@index([journalId])
+  @@index([accountId])
+}
+
+model Payout {
+  id              String       @id @default(cuid())
+  ledgerAccountId String
+  journalId       String       @unique
+  amountMinor     BigInt
+  currency        String       @default("INR")
+  status          PayoutStatus @default(PENDING)
+  bankReferenceId String?
+  settledAt       DateTime?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  ledgerAccount LedgerAccount @relation(fields: [ledgerAccountId], references: [id])
+  journal       LedgerJournal @relation(fields: [journalId], references: [id])
+}
+
+// ============================================================================
+// 4. EXECUTION, PLUGGABLE WORK ARTIFACTS, VOICE REPLAY & AI WALLETS
+// ============================================================================
+
+enum EnrollmentStatus {
+  ACTIVE
+  COMPLETED
+  REVOKED
+}
+
+enum LicenseScope {
+  ALLOWLIST
+}
+
+enum ProjectInstanceStatus {
+  IN_PROGRESS
+  SUBMITTED
+  PASSED
+  FAILED
+}
+
+enum MentorAssignmentStatus {
+  ACTIVE
+  COMPLETED
+  REASSIGNED
+}
+
+enum SubmissionStatus {
+  PENDING_REVIEW
+  CHANGES_REQUESTED
+  APPROVED
+}
+
+enum ReviewVerdict {
+  CHANGES_REQUESTED
+  PASS
+}
+
+/// Non-nullable `cohortKey` defaults to `"SELF_PACED"` so `@@unique([userId, courseId, cohortKey])`
+/// strictly prevents duplicate self-paced enrollments at the PostgreSQL unique-index level.
+model Enrollment {
+  id          String           @id @default(cuid())
+  userId      String
+  courseId    String
+  cohortId    String?
+  cohortKey   String           @default("SELF_PACED")
+  status      EnrollmentStatus @default(ACTIVE)
+  enrolledAt  DateTime         @default(now())
+  completedAt DateTime?
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  cohort Cohort? @relation(fields: [cohortId], references: [id])
+
+  @@unique([userId, courseId, cohortKey])
+  @@index([courseId, status])
+}
+
+/// Default-deny `ALLOWLIST` scope prevents accidental catalog leakage on B2B enterprise contracts
+model OrgLicense {
+  id                String       @id @default(cuid())
+  organizationId    String
+  name              String
+  accessScope       LicenseScope @default(ALLOWLIST)
+  allowedCourseIds  String[]
+  allowedProjectIds String[]
+  maxSeats          Int
+  assignedSeats     Int          @default(0)
+  validFrom         DateTime
+  validUntil        DateTime
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  organization Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  seats        LicenseSeat[]
+
+  @@index([organizationId])
+}
+
+model LicenseSeat {
+  id           String    @id @default(cuid())
+  orgLicenseId String
+  userId       String
+  assignedAt   DateTime  @default(now())
+  revokedAt    DateTime?
+
+  orgLicense OrgLicense @relation(fields: [orgLicenseId], references: [id], onDelete: Cascade)
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([orgLicenseId, userId])
+  @@index([userId])
+}
+
+model ProjectInstance {
+  id                String                @id @default(cuid())
+  userId            String
+  projectId         String
+  orderItemId       String                @unique
+  mentoringModality MentoringModality
+  status            ProjectInstanceStatus @default(IN_PROGRESS)
+  finalScoreBps     Int?
+  escrowReleasedAt  DateTime?
+  startedAt         DateTime              @default(now())
+  completedAt       DateTime?
+  updatedAt         DateTime              @updatedAt
+
+  user             User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project          Project               @relation(fields: [projectId], references: [id])
+  orderItem        OrderItem             @relation(fields: [orderItemId], references: [id])
+  mentorAssignment MentorAssignment?
+  submissions      MilestoneSubmission[]
+  defenseSession   DefenseSession?
+  credential       Credential?
+
+  @@index([userId, status])
+  @@index([projectId])
+}
+
+model MentorProfile {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  headline        String
+  bio             String?
+  specializations String[]
+  hourlyRateMinor BigInt?
+  isVerified      Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model MentorAssignment {
+  id                String                 @id @default(cuid())
+  projectInstanceId String                 @unique
+  mentorUserId      String
+  assignedAt        DateTime               @default(now())
+  status            MentorAssignmentStatus @default(ACTIVE)
+
+  projectInstance ProjectInstance @relation(fields: [projectInstanceId], references: [id], onDelete: Cascade)
+  mentor          User            @relation(fields: [mentorUserId], references: [id])
+
+  @@index([mentorUserId, status])
+}
+
+model MilestoneSubmission {
+  id                String           @id @default(cuid())
+  projectInstanceId String
+  milestoneId       String
+  attemptNumber     Int              @default(1)
+  status            SubmissionStatus @default(PENDING_REVIEW)
+  learnerNotes      String?
+  submittedAt       DateTime         @default(now())
+  reviewedAt        DateTime?
+
+  projectInstance ProjectInstance @relation(fields: [projectInstanceId], references: [id], onDelete: Cascade)
+  milestone       Milestone       @relation(fields: [milestoneId], references: [id], onDelete: Cascade)
+  artifacts       WorkArtifact[]
+  reviews         ProjectReview[]
+
+  @@unique([projectInstanceId, milestoneId, attemptNumber])
+}
+
+model WorkArtifact {
+  id                    String       @id @default(cuid())
+  submissionId          String
+  kind                  ArtifactKind
+  r2ObjectKey           String
+  pngSnapshotR2Key      String?
+  extractedTopologyJson Json
+  mimeType              String
+  byteSize              BigInt
+  createdAt             DateTime     @default(now())
+
+  submission MilestoneSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+
+  @@index([submissionId])
+}
+
+model CanvasVoiceReplay {
+  id                   String   @id @default(cuid())
+  reviewId             String   @unique
+  opusAudioR2Key       String
+  durationMs           Int
+  viewportTimelineJson Json
+  createdAt            DateTime @default(now())
+
+  review ProjectReview @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+}
+
+model ProjectReview {
+  id                  String        @id @default(cuid())
+  submissionId        String
+  reviewerUserId      String
+  scoreBps            Int
+  verdict             ReviewVerdict
+  feedbackMarkdown    String
+  criterionScoresJson Json
+  createdAt           DateTime      @default(now())
+
+  submission        MilestoneSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  reviewer          User                @relation(fields: [reviewerUserId], references: [id])
+  canvasVoiceReplay CanvasVoiceReplay?
+
+  @@index([submissionId])
+}
+
+model DefenseSession {
+  id                String         @id @default(cuid())
+  projectInstanceId String         @unique
+  scheduledAt       DateTime
+  meetingRoomUrl    String
+  recordingR2Key    String?
+  panelScoreBps     Int?
+  verdict           ReviewVerdict?
+  notesMarkdown     String?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  projectInstance ProjectInstance @relation(fields: [projectInstanceId], references: [id], onDelete: Cascade)
+}
+
+model AiWallet {
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  organizationId   String?
+  balanceCredits   BigInt   @default(0)
+  lifetimeConsumed BigInt   @default(0)
+  updatedAt        DateTime @updatedAt
+
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  usageEvents AiUsageEvent[]
+}
+
+model AiUsageEvent {
+  id             String   @id @default(cuid())
+  walletId       String
+  idempotencyKey String   @unique
+  feature        String
+  modelId        String
+  inputTokens    Int
+  outputTokens   Int
+  creditsDebited BigInt
+  artifactId     String?
+  createdAt      DateTime @default(now())
+
+  wallet AiWallet @relation(fields: [walletId], references: [id], onDelete: Cascade)
+
+  @@index([walletId, createdAt])
+}
+
+model SponsoredSimulation {
+  id              String   @id @default(cuid())
+  organizationId  String
+  projectId       String
+  bountyPoolMinor BigInt
+  isActive        Boolean  @default(true)
+  startsAt        DateTime
+  endsAt          DateTime
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  project      Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, isActive])
+}
+
+model Credential {
+  id                String   @id @default(cuid())
+  userId            String
+  courseId          String?
+  projectInstanceId String?  @unique
+  verificationCode  String   @unique
+  metadataJson      Json
+  signatureHash     String
+  issuedAt          DateTime @default(now())
+
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course          Course?          @relation(fields: [courseId], references: [id])
+  projectInstance ProjectInstance? @relation(fields: [projectInstanceId], references: [id])
+
+  @@index([userId])
+}
