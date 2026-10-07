@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   calculateIndiaGstBreakdown,
   computeProjectEscrowSplit,
@@ -11,6 +12,37 @@ export default function CleanArchitectureLandingPage() {
     supplierStateCode: "29",
     buyerGstin: "27AABCM9876K1Z2",
   });
+
+  const portals = [
+    {
+      href: "/studio/demo",
+      badge: "Learner Studio",
+      title: "3-Pane Work Artifact Studio",
+      description:
+        "Split-screen Excalidraw System Design Stencils, Pyodide WASM Python Sandbox, DCF Formula Inspector & 60fps Voice-over-Canvas Player.",
+    },
+    {
+      href: "/mentor/demo",
+      badge: "Mentor Cockpit",
+      title: "5–8 Min Review & 24kbps Opus Recorder",
+      description:
+        "AI Engine 2 3-Bullet Mentor Brief, live rubric sliders, real-time pointer/laser keyframe recorder & 50% Escrow Payout preview.",
+    },
+    {
+      href: "/org/dossier-demo",
+      badge: "B2B & University Portal",
+      title: "NEP 2020 / AICTE Dossier & GST Invoice",
+      description:
+        "Print-ready (@media print) 14–20 Credit Academic Compliance Dossier & gapless SAC 999293 CGST/SGST vs IGST Tax Invoice generator.",
+    },
+    {
+      href: "/verify/ELL-2026-DEMO",
+      badge: "Public Proof-of-Work",
+      title: "Cryptographic Credential Verification",
+      description:
+        "Public employer verification portal displaying SHA-256 artifact digests, Principal Mentor rubric sign-off & Oral Defense verdict.",
+    },
+  ];
 
   return (
     <main
@@ -41,7 +73,7 @@ export default function CleanArchitectureLandingPage() {
       </h1>
 
       <p style={{ color: "#94a3b8", fontSize: "18px", marginBottom: "40px" }}>
-        Engineered with strict domain isolation: Prisma 7/8 PG Driver Adapter (`ap-south-1`),
+        Engineered with strict domain isolation: Prisma 7.10 Rust-Free ESM (`ap-south-1`),
         True Double-Entry Ledger (`SUM(amountMinor) === 0n`), India B2B GST Engine (`SAC ${EDTECH_SAC_CODE}`),
         and Pluggable Work Artifact AST/Topology Extractors.
       </p>
@@ -51,6 +83,7 @@ export default function CleanArchitectureLandingPage() {
           display: "grid",
           gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
           gap: "20px",
+          marginBottom: "36px",
         }}
       >
         <div
@@ -115,6 +148,53 @@ export default function CleanArchitectureLandingPage() {
           </ul>
         </div>
       </section>
+
+      <h2 style={{ fontSize: "22px", margin: "0 0 16px 0", color: "#f8fafc" }}>
+        Interactive Clean-Sheet Portals
+      </h2>
+      <section
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+          gap: "20px",
+        }}
+      >
+        {portals.map((portal) => (
+          <Link
+            key={portal.href}
+            href={portal.href}
+            style={{
+              display: "block",
+              textDecoration: "none",
+              background: "#0f172a",
+              border: "1px solid #334155",
+              borderRadius: "12px",
+              padding: "24px",
+              color: "#f8fafc",
+            }}
+          >
+            <div
+              style={{
+                fontSize: "12px",
+                fontWeight: 600,
+                color: "#38bdf8",
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+                marginBottom: "8px",
+              }}
+            >
+              {portal.badge}
+            </div>
+            <h3 style={{ fontSize: "18px", margin: "0 0 8px 0", color: "#f8fafc" }}>
+              {portal.title} →
+            </h3>
+            <p style={{ fontSize: "14px", color: "#94a3b8", margin: 0 }}>
+              {portal.description}
+            </p>
+          </Link>
+        ))}
+      </section>
     </main>
   );
 }
+

@@ -12,6 +12,7 @@ import {
   computeProjectEscrowSplit,
   EDTECH_SAC_CODE,
 } from "@elluminar/domain-commerce";
+import { aiMentorshipRouter } from "./routes/ai-mentorship";
 import { identityRouter } from "./routes/identity";
 import { webhooksRouter } from "./routes/webhooks";
 
@@ -30,6 +31,7 @@ export const apiApp = new Hono()
   .basePath("/api/v2")
   .route("/identity", identityRouter)
   .route("/webhooks", webhooksRouter)
+  .route("/ai-mentorship", aiMentorshipRouter)
   .get("/health", (c) => {
     return c.json({
       status: "ok",
