@@ -3,11 +3,36 @@
 import React, { useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import {
+  ArrowLeft,
+  ArrowUpRight,
+  Award,
+  CheckCircle2,
+  Clock,
+  Layers,
+  Mic,
+  Radio,
+  ShieldCheck,
+  Sparkles,
+  Users,
+  Zap,
+} from "lucide-react";
 import { reserveCohortSeatCas } from "@elluminar/domain-commerce";
 import {
   STOREFRONT_CATALOG_SKUS,
   type DeliveryMode,
 } from "../../../../components/storefront/CheckoutQuoteDrawer";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
 interface CurriculumLesson {
   id: string;
@@ -15,6 +40,7 @@ interface CurriculumLesson {
   title: string;
   durationMinutes: number;
   artifactMilestoneType: "SYSTEM_TOPOLOGY" | "PYTHON_WASM_AST" | "VOICE_CANVAS_DEFENSE";
+  milestoneLabel: string;
   summary: string;
   invariantSpec: string;
 }
@@ -22,42 +48,48 @@ interface CurriculumLesson {
 const CURRICULUM_LESSONS: CurriculumLesson[] = [
   {
     id: "mod-1-quorum-topology",
-    sectionTitle: "Section 1 • Foundations & Invariant Specification",
+    sectionTitle: "Module 1 · Architecture & Invariant Specification",
     title: "1.1 Designing Linearizable Read/Write Quorums & Split-Brain Guards",
     durationMinutes: 42,
     artifactMilestoneType: "SYSTEM_TOPOLOGY",
+    milestoneLabel: "System Topology Blueprint",
     summary:
-      "Construct multi-region leader election topologies in the Excalidraw System Stencil Canvas and validate quorum intersection (`R + W > N`).",
+      "Construct multi-region leader election topologies in the Excalidraw System Stencil Canvas and validate quorum intersection guarantees under regional network partitions.",
     invariantSpec:
-      "Topology Extractor verifies zero single-point-of-failure edges across ≥ 3 availability zones.",
+      "Automated topology audit verifies zero single-point-of-failure edges across three availability zones.",
   },
   {
     id: "mod-2-ast-verifier",
-    sectionTitle: "Section 2 • Deterministic Execution & AST Verification",
+    sectionTitle: "Module 2 · Deterministic Execution & Static Analysis",
     title: "2.1 Implementing WAL Log Compaction & Hybrid Citation Grounding",
     durationMinutes: 55,
     artifactMilestoneType: "PYTHON_WASM_AST",
+    milestoneLabel: "Python WASM & AST Gate",
     summary:
-      "Execute Python WASM (Pyodide) benchmarks directly in-browser with deterministic AST static analysis verifying zero ungrounded citations or blocking calls.",
+      "Execute Python WASM benchmarks directly in-browser with deterministic AST verification ensuring sub-350ms tail latency and reproducible execution.",
     invariantSpec:
-      "Pyodide AST Verifier enforces p99 latency < 350ms and 100% deterministic seed reproducibility.",
+      "In-browser verification gate confirms p99 latency under 350ms with zero ungrounded citations.",
   },
   {
     id: "mod-3-oral-defense",
-    sectionTitle: "Section 3 • Principal Mentor Evaluation & Escrow Release",
+    sectionTitle: "Module 3 · Staff Engineer Viva-Voce & Escrow Release",
     title: "3.1 60fps Voice-over-Canvas Oral Defense & Rubric Sign-Off",
     durationMinutes: 35,
     artifactMilestoneType: "VOICE_CANVAS_DEFENSE",
+    milestoneLabel: "Staff Engineer Oral Defense",
     summary:
-      "Submit your completed WorkArtifact bundle for asynchronous 5–8 minute Principal Mentor review recorded with 24kbps Opus voice + laser pointer keyframes.",
+      "Submit your completed engineering and financial artifact bundle for an asynchronous 5–8 minute Staff Engineer review with 24kbps Opus audio and 60fps pointer annotations.",
     invariantSpec:
-      "Final PASS verdict triggers Double-Entry Ledger release of 50% Mentor Escrow + 15% Author IP Royalty Escrow.",
+      "Verified rubric pass issues your SHA-256 signed public credential and releases mentor escrow.",
   },
 ];
 
 export default function HybridCourseCohortPlayerPage() {
   const params = useParams<{ slug?: string }>();
-  const slug = typeof params?.slug === "string" ? params.slug : "production-agentic-rag-evals";
+  const slug =
+    typeof params?.slug === "string"
+      ? params.slug
+      : "production-agentic-rag-evals";
 
   const matchedCourse = useMemo(() => {
     return (
@@ -80,13 +112,24 @@ export default function HybridCourseCohortPlayerPage() {
     status: "ACTIVE" as const,
     version: matchedCourse.seatTelemetry?.casVersion ?? 14,
   });
-  const [casStatusBanner, setCasStatusBanner] = useState<string | null>(null);
+  const [seatReservationNotice, setSeatReservationNotice] = useState<
+    string | null
+  >(null);
 
   const activeLesson =
     CURRICULUM_LESSONS.find((l) => l.id === activeLessonId) ??
     CURRICULUM_LESSONS[0]!;
 
-  function handleSimulateSeatCasReservation() {
+  const remainingSeats = Math.max(
+    0,
+    cohortSnapshot.capacity - cohortSnapshot.enrolledCount
+  );
+  const fillPercent = Math.min(
+    100,
+    Math.round((cohortSnapshot.enrolledCount / cohortSnapshot.capacity) * 100)
+  );
+
+  function handleReserveCohortSeat() {
     const mutableCopy = { ...cohortSnapshot };
     const result = reserveCohortSeatCas({
       cohort: mutableCopy,
@@ -96,240 +139,172 @@ export default function HybridCourseCohortPlayerPage() {
 
     if (result.outcome === "RESERVED") {
       setCohortSnapshot(mutableCopy);
-      setCasStatusBanner(
-        `✓ Atomic CAS Seat Reserved (v${cohortSnapshot.version} → v${result.nextVersion}). ${result.remainingSeats} seats remaining.`
+      setSeatReservationNotice(
+        `Your seat in the October Cohort has been reserved (${result.remainingSeats} ${
+          result.remainingSeats === 1 ? "seat" : "seats"
+        } remaining in batch). Launch the Artifact Studio below to begin Module 1.`
       );
     } else {
-      setCasStatusBanner(`✕ CAS Rejected (${result.outcome}): ${result.reason}`);
+      setSeatReservationNotice(
+        "The October Live Cohort is now at full capacity. Switch to Self-Paced Mastery for immediate enrollment with 48-hour Staff Engineer review guarantees."
+      );
     }
   }
 
   return (
-    <main
-      style={{
-        maxWidth: "1280px",
-        margin: "0 auto",
-        padding: "36px 24px 80px",
-        lineHeight: 1.6,
-      }}
-    >
-      {/* Top Bar */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: "12px",
-          marginBottom: "28px",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <Link
-            href="/explore"
-            style={{
-              color: "#94a3b8",
-              textDecoration: "none",
-              fontSize: "13px",
-              padding: "6px 12px",
-              borderRadius: "8px",
-              background: "#0f172a",
-              border: "1px solid #1e293b",
-            }}
+    <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8 lg:py-12">
+      {/* Top Navigation & Commercial Delivery Mode Switcher */}
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+        <div className="flex flex-wrap items-center gap-3">
+          <Button variant="outline" size="sm" render={<Link href="/explore" />}>
+            <ArrowLeft className="mr-1.5 size-3.5" />
+            Explore Catalog
+          </Button>
+
+          <Badge
+            variant="secondary"
+            className="bg-primary-subtle font-medium text-primary-subtle-foreground"
           >
-            ← Back to /explore Storefront
-          </Link>
-          <span
-            style={{
-              padding: "4px 12px",
-              borderRadius: "999px",
-              background: "rgba(56, 189, 248, 0.14)",
-              color: "#38bdf8",
-              fontSize: "12px",
-              fontWeight: 700,
-              textTransform: "uppercase",
-            }}
-          >
-            {matchedCourse.domain} • {matchedCourse.credits} NEP Credits
-          </span>
+            {matchedCourse.domain} · {matchedCourse.credits} NEP Credits
+          </Badge>
         </div>
 
-        {/* Delivery Mode Switcher */}
-        <div
-          style={{
-            display: "flex",
-            gap: "6px",
-            padding: "4px",
-            borderRadius: "10px",
-            background: "#0f172a",
-            border: "1px solid #334155",
-          }}
-        >
-          <button
+        {/* Mode Switcher: Live Cohort vs Self-Paced Mastery */}
+        <div className="inline-flex rounded-xl border border-border bg-card p-1 shadow-xs">
+          <Button
             type="button"
+            size="sm"
+            variant={deliveryMode === "LIVE_COHORT" ? "default" : "ghost"}
             onClick={() => setDeliveryMode("LIVE_COHORT")}
-            style={{
-              padding: "7px 14px",
-              borderRadius: "7px",
-              border: "none",
-              background:
-                deliveryMode === "LIVE_COHORT" ? "#0284c7" : "transparent",
-              color: "#f8fafc",
-              fontSize: "12px",
-              fontWeight: 700,
-              cursor: "pointer",
-            }}
           >
-            🔴 LIVE_COHORT (Seat CAS Telemetry)
-          </button>
-          <button
+            <Radio className="mr-1.5 size-3.5" />
+            Live Cohort with Staff Engineer Reviews
+          </Button>
+          <Button
             type="button"
+            size="sm"
+            variant={deliveryMode === "SELF_PACED" ? "default" : "ghost"}
             onClick={() => setDeliveryMode("SELF_PACED")}
-            style={{
-              padding: "7px 14px",
-              borderRadius: "7px",
-              border: "none",
-              background:
-                deliveryMode === "SELF_PACED" ? "#059669" : "transparent",
-              color: "#f8fafc",
-              fontSize: "12px",
-              fontWeight: 700,
-              cursor: "pointer",
-            }}
           >
-            ⚡ SELF_PACED (Async Mastery)
-          </button>
+            <Zap className="mr-1.5 size-3.5" />
+            Self-Paced Mastery
+          </Button>
         </div>
       </div>
 
-      {/* Course Title & Delivery Telemetry Banner */}
-      <header
-        style={{
-          background: "#0f172a",
-          border: "1px solid #1e293b",
-          borderRadius: "16px",
-          padding: "24px",
-          marginBottom: "28px",
-        }}
-      >
-        <h1 style={{ fontSize: "30px", margin: "0 0 8px 0", color: "#f8fafc" }}>
-          {matchedCourse.title}
-        </h1>
-        <p style={{ color: "#94a3b8", fontSize: "15px", margin: "0 0 18px 0" }}>
-          Lead Faculty: <strong>{matchedCourse.mentorLead}</strong> • Slug:{" "}
-          <code>{slug}</code>
-        </p>
+      {/* Course Header & Live Cohort Seat Reservation Card */}
+      <Card className="mb-8 border-border/80 shadow-sm">
+        <CardHeader className="pb-5 sm:px-8">
+          <div className="space-y-2">
+            <h1 className="font-display text-3xl font-medium tracking-tight text-foreground sm:text-4xl">
+              {matchedCourse.title}
+            </h1>
+            <p className="text-sm text-muted-foreground sm:text-base">
+              Lead Industry Faculty:{" "}
+              <strong className="font-semibold text-foreground">
+                {matchedCourse.mentorLead}
+              </strong>{" "}
+              · Verified Proof-of-Work Capstone Track
+            </p>
+          </div>
+        </CardHeader>
 
-        {deliveryMode === "LIVE_COHORT" ? (
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              flexWrap: "wrap",
-              gap: "12px",
-              padding: "14px 18px",
-              borderRadius: "12px",
-              background: "#020617",
-              border: "1px solid rgba(56, 189, 248, 0.35)",
-            }}
-          >
-            <div>
-              <div style={{ fontSize: "13px", fontWeight: 700, color: "#38bdf8" }}>
-                LIVE_COHORT Optimistic CAS Seat Guard Active
+        <CardContent className="sm:px-8">
+          {deliveryMode === "LIVE_COHORT" ? (
+            <div className="rounded-xl border border-primary/25 bg-primary-subtle/40 p-5">
+              <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
+                <div className="space-y-2">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge className="bg-primary text-primary-foreground">
+                      <Users className="mr-1.5 size-3" />
+                      Live Cohort — Reserve Your Seat in October Batch
+                    </Badge>
+                    <Badge
+                      variant="outline"
+                      className="border-distinction/35 bg-distinction-subtle font-medium text-distinction-subtle-foreground"
+                    >
+                      {remainingSeats === 0
+                        ? "Waitlist Open"
+                        : `${remainingSeats} of ${cohortSnapshot.capacity} Seats Remaining`}
+                    </Badge>
+                  </div>
+
+                  <p className="text-xs text-muted-foreground sm:text-sm">
+                    Includes weekly live architectural architecture clinics, peer design critiques,
+                    and guaranteed 24-hour Staff Engineer 24kbps Voice-over-Canvas evaluations.
+                  </p>
+
+                  {/* Cohort Seat Progress Bar */}
+                  <div className="max-w-md pt-1">
+                    <div className="mb-1 flex justify-between text-[11px] font-medium text-muted-foreground">
+                      <span>{cohortSnapshot.enrolledCount} Engineers Enrolled</span>
+                      <span>Capacity: {cohortSnapshot.capacity}</span>
+                    </div>
+                    <div className="h-2 w-full overflow-hidden rounded-full bg-background/80 ring-1 ring-border">
+                      <div
+                        className="h-full rounded-full bg-primary transition-all duration-300"
+                        style={{ width: `${fillPercent}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="shrink-0">
+                  <Button
+                    type="button"
+                    size="lg"
+                    disabled={remainingSeats === 0}
+                    onClick={handleReserveCohortSeat}
+                    className="w-full sm:w-auto"
+                  >
+                    <Sparkles className="mr-1.5 size-4" />
+                    {remainingSeats === 0
+                      ? "October Batch Full"
+                      : "Reserve Seat in October Batch"}
+                  </Button>
+                </div>
               </div>
-              <div style={{ fontSize: "12px", color: "#cbd5e1", marginTop: "2px" }}>
-                Enrolled:{" "}
-                <strong>
-                  {cohortSnapshot.enrolledCount} / {cohortSnapshot.capacity}
-                </strong>{" "}
-                • CAS Version: <code>v{cohortSnapshot.version}</code> • Remaining:{" "}
-                <strong>
-                  {cohortSnapshot.capacity - cohortSnapshot.enrolledCount} seats
-                </strong>
-              </div>
+
+              {seatReservationNotice && (
+                <div className="mt-4 flex items-center gap-2 rounded-lg border border-success/30 bg-success-subtle px-3.5 py-2.5 text-xs font-medium text-success-subtle-foreground">
+                  <CheckCircle2 className="size-4 shrink-0 text-success" />
+                  <span>{seatReservationNotice}</span>
+                </div>
+              )}
             </div>
+          ) : (
+            <div className="rounded-xl border border-success/30 bg-success-subtle/60 p-5 text-success-subtle-foreground">
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge className="bg-success text-success-foreground">
+                  <Zap className="mr-1 size-3" />
+                  Self-Paced Mastery Active
+                </Badge>
+                <span className="text-xs font-semibold">
+                  Immediate 3-Pane Studio Access · 48-Hour Staff Engineer Review Guarantee
+                </span>
+              </div>
+              <p className="mt-2 text-xs leading-relaxed text-foreground/85 sm:text-sm">
+                Progress through all three architectural milestones on your own schedule with
+                unlimited Socratic AI architecture critiques and asynchronous 24kbps Opus
+                Voice-over-Canvas evaluations from Principal Mentors.
+              </p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
-            <button
-              type="button"
-              onClick={handleSimulateSeatCasReservation}
-              style={{
-                padding: "8px 14px",
-                borderRadius: "8px",
-                border: "1px solid #38bdf8",
-                background: "rgba(56, 189, 248, 0.16)",
-                color: "#f8fafc",
-                fontSize: "12px",
-                fontWeight: 700,
-                cursor: "pointer",
-              }}
-            >
-              Test `reserveCohortSeatCas()` (+1 Seat)
-            </button>
+      {/* Main Split Curriculum Syllabus + Active Milestone Workspace */}
+      <div className="grid items-start gap-6 lg:grid-cols-12">
+        {/* Left Column: Milestone Syllabus Cards */}
+        <div className="space-y-3 lg:col-span-5">
+          <div className="flex items-center justify-between px-1">
+            <h2 className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+              Milestone Syllabus &amp; Proof-of-Work Gates
+            </h2>
+            <span className="text-xs text-muted-foreground">3 Checkpoints</span>
           </div>
-        ) : (
-          <div
-            style={{
-              padding: "14px 18px",
-              borderRadius: "12px",
-              background: "#020617",
-              border: "1px solid rgba(52, 211, 153, 0.35)",
-              fontSize: "13px",
-              color: "#a7f3d0",
-            }}
-          >
-            <strong>SELF_PACED Asynchronous Mastery Mode:</strong> Instant access
-            to all 3-Pane Work Artifact sandboxes with 48-hour SLA on Principal
-            Mentor 24kbps Opus Voice-over-Canvas evaluations.
-          </div>
-        )}
 
-        {casStatusBanner && (
-          <div
-            style={{
-              marginTop: "12px",
-              fontSize: "12px",
-              color: "#38bdf8",
-              fontFamily: "monospace",
-            }}
-          >
-            {casStatusBanner}
-          </div>
-        )}
-      </header>
-
-      {/* Main Split Curriculum Navigator + Active Milestone Player */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))",
-          gap: "24px",
-          alignItems: "start",
-        }}
-      >
-        {/* Left Sidebar: Section & Lesson Navigator */}
-        <nav
-          aria-label="Course Curriculum Sections"
-          style={{
-            background: "#0f172a",
-            border: "1px solid #1e293b",
-            borderRadius: "14px",
-            padding: "20px",
-          }}
-        >
-          <h2
-            style={{
-              fontSize: "15px",
-              margin: "0 0 14px 0",
-              color: "#cbd5e1",
-              textTransform: "uppercase",
-              letterSpacing: "0.05em",
-            }}
-          >
-            Curriculum &amp; Artifact Checkpoints
-          </h2>
-
-          <div style={{ display: "grid", gap: "10px" }}>
+          <div className="space-y-3">
             {CURRICULUM_LESSONS.map((lesson) => {
               const isSelected = lesson.id === activeLesson.id;
               return (
@@ -337,158 +312,144 @@ export default function HybridCourseCohortPlayerPage() {
                   key={lesson.id}
                   type="button"
                   onClick={() => setActiveLessonId(lesson.id)}
-                  style={{
-                    textAlign: "left",
-                    padding: "14px",
-                    borderRadius: "10px",
-                    border: isSelected
-                      ? "1px solid #38bdf8"
-                      : "1px solid #1e293b",
-                    background: isSelected ? "#131c31" : "#020617",
-                    color: "#f8fafc",
-                    cursor: "pointer",
-                  }}
+                  className={`w-full rounded-xl border p-4 text-left transition-all ${
+                    isSelected
+                      ? "border-primary bg-primary-subtle/35 shadow-xs ring-1 ring-primary/20"
+                      : "border-border bg-card hover:bg-muted/40"
+                  }`}
                 >
-                  <div
-                    style={{
-                      fontSize: "11px",
-                      color: "#38bdf8",
-                      fontWeight: 600,
-                      marginBottom: "4px",
-                    }}
-                  >
-                    {lesson.sectionTitle}
+                  <div className="mb-1.5 flex items-center justify-between gap-2">
+                    <span className="text-[11px] font-semibold text-primary">
+                      {lesson.sectionTitle}
+                    </span>
+                    <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
+                      <Clock className="size-3" />
+                      {lesson.durationMinutes} min
+                    </span>
                   </div>
-                  <div style={{ fontSize: "14px", fontWeight: 700, marginBottom: "6px" }}>
+
+                  <div className="text-sm font-semibold leading-snug text-foreground">
                     {lesson.title}
                   </div>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      fontSize: "11px",
-                      color: "#94a3b8",
-                    }}
-                  >
-                    <span>{lesson.durationMinutes} mins</span>
-                    <code>{lesson.artifactMilestoneType}</code>
+
+                  <div className="mt-2.5 flex items-center justify-between">
+                    <Badge
+                      variant="outline"
+                      className="text-[11px] font-medium text-muted-foreground"
+                    >
+                      {lesson.milestoneLabel}
+                    </Badge>
+                    {isSelected && (
+                      <span className="text-xs font-semibold text-primary">
+                        Active Milestone →
+                      </span>
+                    )}
                   </div>
                 </button>
               );
             })}
           </div>
-        </nav>
+        </div>
 
-        {/* Right Stage: Active Lesson Workspace & Studio/Mentor Deep Links */}
-        <section
-          style={{
-            background: "#0f172a",
-            border: "1px solid #334155",
-            borderRadius: "14px",
-            padding: "28px",
-          }}
-        >
-          <div
-            style={{
-              display: "inline-block",
-              padding: "3px 10px",
-              borderRadius: "999px",
-              background: "rgba(192, 132, 252, 0.16)",
-              color: "#c084fc",
-              fontSize: "11px",
-              fontWeight: 700,
-              marginBottom: "10px",
-            }}
-          >
-            Milestone Artifact: {activeLesson.artifactMilestoneType}
-          </div>
-
-          <h2 style={{ fontSize: "24px", margin: "0 0 12px 0", color: "#f8fafc" }}>
-            {activeLesson.title}
-          </h2>
-
-          <p style={{ color: "#cbd5e1", fontSize: "15px", margin: "0 0 20px 0" }}>
-            {activeLesson.summary}
-          </p>
-
-          <div
-            style={{
-              padding: "16px",
-              borderRadius: "12px",
-              background: "#020617",
-              border: "1px solid #1e293b",
-              marginBottom: "24px",
-            }}
-          >
-            <div
-              style={{
-                fontSize: "12px",
-                fontWeight: 700,
-                color: "#34d399",
-                marginBottom: "6px",
-              }}
-            >
-              Automated AST / Topology Verification Gate:
+        {/* Right Stage: Active Lesson Workspace & Direct Launch into /studio/demo */}
+        <Card className="border-border/80 shadow-sm lg:col-span-7">
+          <CardHeader className="border-b bg-muted/20 pb-5 sm:px-7">
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge
+                variant="outline"
+                className="border-primary/30 bg-primary-subtle font-medium text-primary-subtle-foreground"
+              >
+                <Layers className="mr-1 size-3" />
+                {activeLesson.milestoneLabel}
+              </Badge>
+              <Badge
+                variant="outline"
+                className="border-distinction/30 bg-distinction-subtle font-medium text-distinction-subtle-foreground"
+              >
+                <Award className="mr-1 size-3" />
+                Required for Credential Sign-Off
+              </Badge>
             </div>
-            <div style={{ fontSize: "13px", color: "#94a3b8" }}>
-              {activeLesson.invariantSpec}
+
+            <CardTitle className="mt-2 font-display text-2xl font-medium text-foreground">
+              {activeLesson.title}
+            </CardTitle>
+
+            <CardDescription className="text-sm leading-relaxed text-muted-foreground">
+              {activeLesson.summary}
+            </CardDescription>
+          </CardHeader>
+
+          <CardContent className="space-y-6 pt-6 sm:px-7">
+            {/* Automated Verification Gate Box */}
+            <div className="rounded-xl border border-success/30 bg-success-subtle/50 p-4">
+              <div className="flex items-center gap-2 text-xs font-semibold tracking-wider text-success-subtle-foreground uppercase">
+                <ShieldCheck className="size-4 text-success" />
+                Automated Engineering Verification Gate
+              </div>
+              <p className="mt-1.5 text-xs leading-relaxed text-foreground/90 sm:text-sm">
+                {activeLesson.invariantSpec}
+              </p>
             </div>
-          </div>
 
-          {/* Deep Links into /studio/demo and /mentor/demo */}
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-              gap: "14px",
-            }}
-          >
-            <Link
-              href="/studio/demo"
-              style={{
-                display: "block",
-                padding: "16px",
-                borderRadius: "12px",
-                background: "linear-gradient(135deg, #0284c7, #4f46e5)",
-                color: "#ffffff",
-                textDecoration: "none",
-              }}
-            >
-              <div style={{ fontSize: "11px", fontWeight: 700, opacity: 0.9 }}>
-                LEARNER WORKSPACE
-              </div>
-              <div style={{ fontSize: "16px", fontWeight: 700, marginTop: "4px" }}>
-                Open `/studio/demo` Milestone →
-              </div>
-              <div style={{ fontSize: "12px", opacity: 0.85, marginTop: "4px" }}>
-                Launch 3-Pane Excalidraw + Pyodide AST + DCF Studio
-              </div>
-            </Link>
+            <Separator />
 
-            <Link
-              href="/mentor/demo"
-              style={{
-                display: "block",
-                padding: "16px",
-                borderRadius: "12px",
-                background: "#1e293b",
-                border: "1px solid #475569",
-                color: "#f8fafc",
-                textDecoration: "none",
-              }}
-            >
-              <div style={{ fontSize: "11px", fontWeight: 700, color: "#34d399" }}>
-                PRINCIPAL MENTOR COCKPIT
+            {/* Commercial Launch Actions into /studio/demo & /mentor/demo */}
+            <div className="space-y-3">
+              <h3 className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+                Launch Interactive Engineering Workspace
+              </h3>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <Card className="border-primary/30 bg-primary-subtle/20 shadow-none">
+                  <CardContent className="flex h-full flex-col justify-between gap-4 p-4">
+                    <div>
+                      <div className="text-xs font-semibold text-primary">
+                        3-Pane Artifact Studio
+                      </div>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        Open Excalidraw System Stencils, Pyodide Python Sandbox &amp; Unit
+                        Economics DCF Model.
+                      </p>
+                    </div>
+                    <Button size="sm" className="w-full" render={<Link href="/studio/demo" />}>
+                      Launch Artifact Studio
+                      <ArrowUpRight className="ml-1.5 size-3.5" />
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-border bg-muted/20 shadow-none">
+                  <CardContent className="flex h-full flex-col justify-between gap-4 p-4">
+                    <div>
+                      <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
+                        <Mic className="size-3.5 text-success" />
+                        Staff Engineer Cockpit
+                      </div>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        Preview synchronized 24kbps Opus Voice-over-Canvas review &amp; rubric
+                        scoring.
+                      </p>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full"
+                      render={<Link href="/mentor/demo" />}
+                    >
+                      Inspect Mentor Review
+                      <ArrowUpRight className="ml-1.5 size-3.5" />
+                    </Button>
+                  </CardContent>
+                </Card>
               </div>
-              <div style={{ fontSize: "16px", fontWeight: 700, marginTop: "4px" }}>
-                Open `/mentor/demo` Review →
-              </div>
-              <div style={{ fontSize: "12px", color: "#cbd5e1", marginTop: "4px" }}>
-                Inspect 24kbps Opus Voice-over-Canvas &amp; 50% Escrow Payout
-              </div>
-            </Link>
-          </div>
-        </section>
+            </div>
+          </CardContent>
+
+          <CardFooter className="border-t bg-muted/30 px-6 py-3.5 text-xs text-muted-foreground sm:px-7">
+            All artifact submissions are cryptographically anchored with SHA-256 digests upon rubric completion.
+          </CardFooter>
+        </Card>
       </div>
     </main>
   );
