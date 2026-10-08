@@ -15,11 +15,32 @@ export default function CleanArchitectureLandingPage() {
 
   const portals = [
     {
+      href: "/explore",
+      badge: "Outcome Storefront & GST Checkout",
+      title: "Role Tracks, Catalog & B2B/Stipend Drawer",
+      description:
+        "Interactive SKU selector with live 80/20 vs 90/10 creator splits, CGST/SGST vs IGST tax quotes, tenant coupons & ₹0 scholarship bypass.",
+    },
+    {
+      href: "/learn/course/distributed-systems-capstone",
+      badge: "Hybrid Course Player",
+      title: "Cohort Seat CAS & Self-Paced Mastery",
+      description:
+        "Switch between LIVE_COHORT (atomic CAS seat lock) and SELF_PACED tracks with direct milestone handoff into the Artifact Studio.",
+    },
+    {
       href: "/studio/demo",
       badge: "Learner Studio",
       title: "3-Pane Work Artifact Studio",
       description:
         "Split-screen Excalidraw System Design Stencils, Pyodide WASM Python Sandbox, DCF Formula Inspector & 60fps Voice-over-Canvas Player.",
+    },
+    {
+      href: "/studio/creator-demo",
+      badge: "Creator Studio",
+      title: "IP Royalty, Rubric Cache & RBAC Builder",
+      description:
+        "Simulate 15% Project IP Royalty + 90/10 Direct referral economics, Gemini implicit cache rubric builder & multi-tenant RBAC guards.",
     },
     {
       href: "/mentor/demo",
