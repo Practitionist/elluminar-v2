@@ -3,12 +3,35 @@
 import React, { useMemo, useState } from "react";
 import Link from "next/link";
 import {
+  Award,
+  BookOpen,
+  CheckCircle2,
+  Clock,
+  FileText,
+  Layers,
+  ShieldCheck,
+  Sparkles,
+  Users,
+  ArrowRight,
+  GraduationCap,
+} from "lucide-react";
+import {
   CheckoutQuoteDrawer,
   formatInrMinor,
   STOREFRONT_CATALOG_SKUS,
   type DeliveryMode,
   type StorefrontSkuItem,
-} from "../../components/storefront/CheckoutQuoteDrawer";
+} from "@/components/storefront/CheckoutQuoteDrawer";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 interface RoleTrackItem {
   id: string;
@@ -25,7 +48,8 @@ const ROLE_TRACKS: RoleTrackItem[] = [
     roleTitle: "Principal Distributed Systems & Storage Architect",
     domain: "Distributed Systems",
     totalCredits: 18,
-    targetOutcome: "Design & verify multi-region linearizable engines with Jepsen fault-injection proofs.",
+    targetOutcome:
+      "Design and verify multi-region linearizable engines with deterministic fault-injection proofs.",
     flagshipDeliverables: [
       "Excalidraw Quorum & Split-Brain Topology",
       "Pyodide WAL + LSM Compaction Simulator",
@@ -37,7 +61,8 @@ const ROLE_TRACKS: RoleTrackItem[] = [
     roleTitle: "Staff Applied AI & Agentic RAG Systems Engineer",
     domain: "Agentic RAG",
     totalCredits: 16,
-    targetOutcome: "Ship sub-400ms hybrid retrieval pipelines with deterministic AST citation guardrails.",
+    targetOutcome:
+      "Ship sub-400ms hybrid retrieval pipelines with verified citation groundedness guardrails.",
     flagshipDeliverables: [
       "HNSW + BM25 Reciprocal Rank Fusion Benchmark",
       "AST Citation Groundedness Verifier",
@@ -49,13 +74,30 @@ const ROLE_TRACKS: RoleTrackItem[] = [
     roleTitle: "VP Quantitative Growth Equity & Venture Capital",
     domain: "Venture Capital DCF",
     totalCredits: 14,
-    targetOutcome: "Author institutional Series B/C IC Memos with zero hardcoded spreadsheet overrides.",
+    targetOutcome:
+      "Author institutional Series B/C Investment Committee Memos with audited valuation models.",
     flagshipDeliverables: [
       "3-Statement SaaS Cohort & NRR Engine",
       "Formula AST WACC / Terminal Value Matrix",
       "Liquidation Preference Waterfall & Voice-over-Sheet",
     ],
   },
+];
+
+const DOMAIN_FILTERS = [
+  "ALL",
+  "Distributed Systems",
+  "Agentic RAG",
+  "Venture Capital DCF",
+] as const;
+
+const FORMAT_FILTERS: readonly {
+  value: "ALL" | DeliveryMode;
+  label: string;
+}[] = [
+  { value: "ALL", label: "All Formats" },
+  { value: "LIVE_COHORT", label: "Live Cohort" },
+  { value: "SELF_PACED", label: "Self-Paced Mastery" },
 ];
 
 export default function UnifiedOutcomeStorefrontPage() {
@@ -65,6 +107,7 @@ export default function UnifiedOutcomeStorefrontPage() {
   const [activeSku, setActiveSku] = useState<StorefrontSkuItem>(
     STOREFRONT_CATALOG_SKUS[0]!
   );
+  const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
 
   const filteredSkus = useMemo(() => {
     return STOREFRONT_CATALOG_SKUS.filter((sku) => {
@@ -77,433 +120,324 @@ export default function UnifiedOutcomeStorefrontPage() {
     });
   }, [selectedDomain, selectedDeliveryMode]);
 
+  const handleOpenQuoteDrawer = (sku: StorefrontSkuItem) => {
+    setActiveSku(sku);
+    setDrawerOpen(true);
+  };
+
   return (
-    <main
-      style={{
-        maxWidth: "1280px",
-        margin: "0 auto",
-        padding: "40px 24px 80px",
-        lineHeight: 1.55,
-      }}
-    >
-      {/* Top Breadcrumb & Navigation Bar */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: "12px",
-          marginBottom: "28px",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <Link
-            href="/"
-            style={{
-              color: "#94a3b8",
-              textDecoration: "none",
-              fontSize: "13px",
-              padding: "6px 12px",
-              borderRadius: "8px",
-              background: "#0f172a",
-              border: "1px solid #1e293b",
-            }}
+    <main className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+      {/* Editorial Header */}
+      <header className="mb-12 border-b border-border pb-10">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge variant="default" className="gap-1 px-2.5 py-0.5 text-xs">
+              <Sparkles className="size-3" />
+              October 2026 Admissions Open
+            </Badge>
+            <Badge variant="outline" className="text-xs font-medium">
+              GST E-Invoice Eligible (SAC 999293)
+            </Badge>
+            <Badge variant="secondary" className="text-xs font-medium">
+              NEP 2020 Credit-Bearing
+            </Badge>
+          </div>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setDrawerOpen(true)}
           >
-            ← Architecture Hub
-          </Link>
-          <span
-            style={{
-              padding: "4px 12px",
-              borderRadius: "999px",
-              background: "rgba(56, 189, 248, 0.14)",
-              color: "#38bdf8",
-              fontSize: "12px",
-              fontWeight: 700,
-              letterSpacing: "0.05em",
-              textTransform: "uppercase",
-            }}
-          >
-            Unified Outcome Storefront • SAC 999293
-          </span>
+            <FileText className="size-3.5" />
+            Corporate L&amp;D &amp; Scholarship Quote Calculator
+          </Button>
         </div>
 
-        <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-          <Link
-            href="/learn/course/production-agentic-rag-evals"
-            style={{
-              color: "#38bdf8",
-              textDecoration: "none",
-              fontSize: "13px",
-              fontWeight: 600,
-              padding: "7px 14px",
-              borderRadius: "8px",
-              background: "#0f172a",
-              border: "1px solid #334155",
-            }}
-          >
-            Open Hybrid Cohort Player →
-          </Link>
-          <Link
-            href="/studio/demo"
-            style={{
-              color: "#34d399",
-              textDecoration: "none",
-              fontSize: "13px",
-              fontWeight: 600,
-              padding: "7px 14px",
-              borderRadius: "8px",
-              background: "#0f172a",
-              border: "1px solid #334155",
-            }}
-          >
-            3-Pane Artifact Studio →
-          </Link>
-        </div>
-      </div>
-
-      {/* Hero Section */}
-      <header style={{ marginBottom: "36px" }}>
-        <h1
-          style={{
-            fontSize: "36px",
-            margin: "0 0 12px 0",
-            letterSpacing: "-0.02em",
-            color: "#f8fafc",
-          }}
-        >
-          Outcome-Backed Role Tracks, Live Cohorts &amp; Proof-of-Work Capstones
+        <h1 className="mt-5 max-w-4xl font-display text-4xl font-medium tracking-tight text-foreground sm:text-5xl lg:text-6xl">
+          Verified Proof-of-Work Capstones, Live Cohorts &amp; Role Tracks
         </h1>
-        <p style={{ color: "#94a3b8", fontSize: "16px", maxWidth: "820px", margin: 0 }}>
-          Every Flagship Project locks <strong>50% Mentor Escrow</strong> +{" "}
-          <strong>15% Author IP Royalty Escrow</strong> in our Double-Entry Ledger
-          until your multimodal artifact passes Principal Mentor evaluation.
+
+        <p className="mt-4 max-w-3xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+          Master high-stakes engineering, applied AI, and quantitative finance systems alongside practicing Staff &amp; Principal architects. Every program builds an audited technical dossier backed by voice defense reviews.
         </p>
+
+        {/* Commercial Trust & Escrow Protection Strip */}
+        <div className="mt-6 flex flex-col gap-3 rounded-2xl border border-success/30 bg-success-subtle/40 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-3">
+            <ShieldCheck className="mt-0.5 size-5 shrink-0 text-success" />
+            <div className="text-sm text-foreground">
+              <strong className="font-semibold">Protected Milestone Escrow:</strong>{" "}
+              <span className="text-muted-foreground">
+                Your tuition is locked until a Staff Engineer reviews your architecture and signs off on your defense.
+              </span>
+            </div>
+          </div>
+
+          <div className="flex shrink-0 flex-wrap items-center gap-3 text-xs font-medium text-muted-foreground">
+            <span className="inline-flex items-center gap-1.5 text-foreground">
+              <CheckCircle2 className="size-3.5 text-success" />
+              100% Corporate GST Input Credit
+            </span>
+            <span className="inline-flex items-center gap-1.5 text-foreground">
+              <CheckCircle2 className="size-3.5 text-success" />
+              Merit Scholarships Available
+            </span>
+          </div>
+        </div>
       </header>
 
-      {/* Role Tracks Showcase */}
-      <section style={{ marginBottom: "40px" }}>
-        <h2
-          style={{
-            fontSize: "18px",
-            margin: "0 0 16px 0",
-            color: "#cbd5e1",
-            textTransform: "uppercase",
-            letterSpacing: "0.05em",
-          }}
-        >
-          Verified NEP 2020 / Industry Role Tracks
-        </h2>
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-            gap: "16px",
-          }}
-        >
-          {ROLE_TRACKS.map((track) => (
-            <div
-              key={track.id}
-              style={{
-                background: "#0f172a",
-                border: "1px solid #1e293b",
-                borderRadius: "14px",
-                padding: "20px",
-              }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  marginBottom: "8px",
-                }}
-              >
-                <span
-                  style={{
-                    fontSize: "11px",
-                    fontWeight: 700,
-                    color: "#38bdf8",
-                    textTransform: "uppercase",
-                  }}
-                >
-                  {track.domain}
-                </span>
-                <span
-                  style={{
-                    fontSize: "11px",
-                    padding: "2px 8px",
-                    borderRadius: "999px",
-                    background: "#1e293b",
-                    color: "#cbd5e1",
-                  }}
-                >
-                  {track.totalCredits} Academic Credits
-                </span>
-              </div>
-              <h3 style={{ fontSize: "17px", margin: "0 0 8px 0", color: "#f8fafc" }}>
-                {track.roleTitle}
-              </h3>
-              <p style={{ fontSize: "13px", color: "#94a3b8", margin: "0 0 12px 0" }}>
-                {track.targetOutcome}
-              </p>
-              <ul
-                style={{
-                  paddingLeft: "18px",
-                  margin: 0,
-                  fontSize: "12px",
-                  color: "#cbd5e1",
-                }}
-              >
-                {track.flagshipDeliverables.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
+      {/* NEP 2020 / Industry Role Track Highlight Cards */}
+      <section aria-labelledby="role-tracks-heading" className="mb-14">
+        <div className="mb-5 flex flex-wrap items-end justify-between gap-2">
+          <div>
+            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-primary">
+              <GraduationCap className="size-4" />
+              Executive &amp; Academic Degree Pathways
             </div>
+            <h2
+              id="role-tracks-heading"
+              className="mt-1 font-display text-2xl font-medium text-foreground sm:text-3xl"
+            >
+              NEP 2020 &amp; Industry Role Specializations (14–18 Academic Credits)
+            </h2>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Stackable capstone credits recognized across partner engineering guilds and universities.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+          {ROLE_TRACKS.map((track) => (
+            <Card
+              key={track.id}
+              className="flex flex-col justify-between transition-all hover:ring-primary/30"
+            >
+              <CardHeader>
+                <div className="flex items-center justify-between gap-2">
+                  <Badge variant="secondary" className="font-medium">
+                    {track.domain}
+                  </Badge>
+                  <Badge variant="outline" className="font-mono text-xs">
+                    {track.totalCredits} Academic Credits
+                  </Badge>
+                </div>
+                <CardTitle className="mt-2 font-display text-xl font-medium leading-snug">
+                  {track.roleTitle}
+                </CardTitle>
+                <CardDescription className="text-xs leading-relaxed">
+                  {track.targetOutcome}
+                </CardDescription>
+              </CardHeader>
+
+              <CardContent>
+                <div className="space-y-1.5 border-t border-border pt-3">
+                  <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    Verified Portfolio Deliverables
+                  </div>
+                  <ul className="space-y-1.5 text-xs text-foreground">
+                    {track.flagshipDeliverables.map((item) => (
+                      <li key={item} className="flex items-start gap-2">
+                        <CheckCircle2 className="mt-0.5 size-3.5 shrink-0 text-primary" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
       </section>
 
-      {/* Filter Bar */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: "12px",
-          marginBottom: "24px",
-          padding: "14px 18px",
-          borderRadius: "12px",
-          background: "#0f172a",
-          border: "1px solid #1e293b",
-        }}
-      >
-        <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-          {(
-            [
-              "ALL",
-              "Distributed Systems",
-              "Agentic RAG",
-              "Venture Capital DCF",
-            ] as const
-          ).map((dom) => (
-            <button
-              key={dom}
-              type="button"
-              onClick={() => setSelectedDomain(dom)}
-              style={{
-                padding: "7px 14px",
-                borderRadius: "8px",
-                border:
-                  selectedDomain === dom
-                    ? "1px solid #38bdf8"
-                    : "1px solid #334155",
-                background:
-                  selectedDomain === dom
-                    ? "rgba(56, 189, 248, 0.16)"
-                    : "#020617",
-                color: "#f8fafc",
-                fontSize: "12px",
-                fontWeight: 600,
-                cursor: "pointer",
-              }}
-            >
-              {dom === "ALL" ? "All Domains" : dom}
-            </button>
-          ))}
-        </div>
-
-        <div style={{ display: "flex", gap: "8px" }}>
-          {(["ALL", "LIVE_COHORT", "SELF_PACED"] as const).map((mode) => (
-            <button
-              key={mode}
-              type="button"
-              onClick={() => setSelectedDeliveryMode(mode)}
-              style={{
-                padding: "7px 12px",
-                borderRadius: "8px",
-                border:
-                  selectedDeliveryMode === mode
-                    ? "1px solid #34d399"
-                    : "1px solid #334155",
-                background:
-                  selectedDeliveryMode === mode
-                    ? "rgba(52, 211, 153, 0.16)"
-                    : "#020617",
-                color: "#f8fafc",
-                fontSize: "12px",
-                fontWeight: 600,
-                cursor: "pointer",
-              }}
-            >
-              {mode === "ALL"
-                ? "All Delivery Modes"
-                : mode === "LIVE_COHORT"
-                ? "🔴 LIVE_COHORT"
-                : "⚡ SELF_PACED"}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Main Split Grid: Catalog SKUs on Left + Interactive GST/Escrow Drawer on Right */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(380px, 1fr))",
-          gap: "24px",
-          alignItems: "start",
-        }}
-      >
-        <div style={{ display: "grid", gap: "16px" }}>
-          {filteredSkus.map((sku) => {
-            const isSelected = activeSku.id === sku.id;
-            return (
-              <article
-                key={sku.id}
-                style={{
-                  background: isSelected ? "#131c31" : "#0f172a",
-                  border: isSelected
-                    ? "1px solid #38bdf8"
-                    : "1px solid #1e293b",
-                  borderRadius: "14px",
-                  padding: "22px",
-                  transition: "border-color 0.15s ease",
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    flexWrap: "wrap",
-                    gap: "8px",
-                    marginBottom: "10px",
-                  }}
+      {/* Catalog Filter Bar */}
+      <section aria-label="Catalog Filters" className="mb-8">
+        <div className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-4 shadow-xs lg:flex-row lg:items-center lg:justify-between">
+          {/* Domain Filter Pills */}
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="mr-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Domain:
+            </span>
+            {DOMAIN_FILTERS.map((dom) => {
+              const active = selectedDomain === dom;
+              return (
+                <Button
+                  key={dom}
+                  type="button"
+                  variant={active ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setSelectedDomain(dom)}
+                  className="rounded-full"
                 >
-                  <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-                    <span
-                      style={{
-                        padding: "3px 9px",
-                        borderRadius: "6px",
-                        background:
-                          sku.kind === "PROJECT"
-                            ? "rgba(192, 132, 252, 0.16)"
-                            : "rgba(56, 189, 248, 0.16)",
-                        color: sku.kind === "PROJECT" ? "#c084fc" : "#38bdf8",
-                        fontSize: "11px",
-                        fontWeight: 700,
-                      }}
-                    >
-                      {sku.kind === "PROJECT"
-                        ? "CAPSTONE PROJECT (50/15/35 Escrow)"
-                        : "HYBRID COURSE (80/20 or 90/10)"}
-                    </span>
-                    <span
-                      style={{
-                        padding: "3px 9px",
-                        borderRadius: "6px",
-                        background: "#1e293b",
-                        color:
-                          sku.deliveryMode === "LIVE_COHORT"
-                            ? "#34d399"
-                            : "#cbd5e1",
-                        fontSize: "11px",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {sku.deliveryMode}
-                    </span>
+                  {dom === "ALL" ? "All Domains" : dom}
+                </Button>
+              );
+            })}
+          </div>
+
+          {/* Delivery Format Pills */}
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="mr-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Format:
+            </span>
+            {FORMAT_FILTERS.map((fmt) => {
+              const active = selectedDeliveryMode === fmt.value;
+              return (
+                <Button
+                  key={fmt.value}
+                  type="button"
+                  variant={active ? "secondary" : "ghost"}
+                  size="sm"
+                  onClick={() => setSelectedDeliveryMode(fmt.value)}
+                  className={`rounded-full ${
+                    active ? "ring-1 ring-primary/40 font-semibold text-foreground" : ""
+                  }`}
+                >
+                  {fmt.value === "LIVE_COHORT" && (
+                    <Users className="size-3.5 text-primary" />
+                  )}
+                  {fmt.value === "SELF_PACED" && (
+                    <Clock className="size-3.5 text-muted-foreground" />
+                  )}
+                  {fmt.label}
+                </Button>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Full-Width Responsive Catalog Grid */}
+      <section aria-label="Courses and Capstone Projects">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          {filteredSkus.map((sku) => {
+            const seatsLeft = sku.seatTelemetry
+              ? sku.seatTelemetry.capacity - sku.seatTelemetry.enrolled
+              : null;
+
+            return (
+              <Card
+                key={sku.id}
+                className="flex flex-col justify-between transition-all hover:shadow-md hover:ring-foreground/20"
+              >
+                <CardHeader className="space-y-3">
+                  {/* Top Badges & Scarcity Strip */}
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Badge
+                        variant={sku.kind === "PROJECT" ? "default" : "secondary"}
+                      >
+                        {sku.kind === "PROJECT"
+                          ? "Proof-of-Work Capstone"
+                          : "Applied Engineering Course"}
+                      </Badge>
+
+                      <Badge variant="outline">
+                        {sku.deliveryMode === "LIVE_COHORT"
+                          ? "Live Cohort"
+                          : "Self-Paced Mastery"}
+                      </Badge>
+
+                      <Badge variant="outline" className="font-mono text-[11px]">
+                        {sku.credits} NEP Credits
+                      </Badge>
+                    </div>
                   </div>
 
-                  <strong style={{ fontSize: "18px", color: "#f8fafc" }}>
-                    {formatInrMinor(sku.priceMinor)}{" "}
-                    <span style={{ fontSize: "11px", color: "#94a3b8", fontWeight: 400 }}>
-                      + GST
-                    </span>
-                  </strong>
-                </div>
+                  {/* Live Cohort Commercial Urgency Banner */}
+                  {seatsLeft !== null && (
+                    <div className="inline-flex w-fit items-center gap-2 rounded-full border border-distinction/30 bg-distinction-subtle px-3 py-1 text-xs font-medium text-distinction-subtle-foreground">
+                      <span className="size-2 rounded-full bg-distinction" />
+                      Live Cohort — Only {seatsLeft} Seats Left for October Batch • Reserve Your Seat
+                    </div>
+                  )}
 
-                <h3 style={{ fontSize: "19px", margin: "0 0 8px 0", color: "#f8fafc" }}>
-                  {sku.title}
-                </h3>
-                <p style={{ fontSize: "13px", color: "#94a3b8", margin: "0 0 12px 0" }}>
-                  <strong>Artifact Proof:</strong> {sku.artifactSummary}
-                </p>
-
-                {sku.seatTelemetry && (
-                  <div
-                    style={{
-                      padding: "8px 12px",
-                      borderRadius: "8px",
-                      background: "#020617",
-                      border: "1px solid #1e293b",
-                      fontSize: "12px",
-                      color: "#cbd5e1",
-                      marginBottom: "14px",
-                    }}
-                  >
-                    Live Cohort CAS Capacity:{" "}
-                    <strong>
-                      {sku.seatTelemetry.enrolled}/{sku.seatTelemetry.capacity}{" "}
-                      Seats Reserved
-                    </strong>{" "}
-                    (<code>casVersion: v{sku.seatTelemetry.casVersion}</code> —{" "}
-                    {sku.seatTelemetry.capacity - sku.seatTelemetry.enrolled}{" "}
-                    seats remaining)
+                  <div>
+                    <CardTitle className="font-display text-2xl font-medium leading-snug text-foreground">
+                      {sku.title}
+                    </CardTitle>
+                    <p className="mt-1.5 text-xs text-muted-foreground">
+                      Faculty Lead:{" "}
+                      <span className="font-semibold text-foreground">
+                        {sku.mentorLead}
+                      </span>{" "}
+                      • {sku.organizationName}
+                    </p>
                   </div>
-                )}
+                </CardHeader>
 
-                <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-                  <button
-                    type="button"
-                    onClick={() => setActiveSku(sku)}
-                    style={{
-                      padding: "9px 14px",
-                      borderRadius: "8px",
-                      border: "none",
-                      background: isSelected ? "#0284c7" : "#1e293b",
-                      color: "#ffffff",
-                      fontSize: "12px",
-                      fontWeight: 700,
-                      cursor: "pointer",
-                    }}
-                  >
-                    {isSelected
-                      ? "✓ Inspecting in GST & Escrow Drawer"
-                      : "Configure B2B GST & Escrow Quote →"}
-                  </button>
+                <CardContent className="space-y-4">
+                  {/* Artifact Deliverables Box */}
+                  <div className="rounded-xl border border-border bg-muted/40 p-3.5">
+                    <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                      <Layers className="size-3.5 text-primary" />
+                      Verified Portfolio Artifact &amp; Evaluation
+                    </div>
+                    <p className="mt-1 text-xs leading-relaxed text-foreground">
+                      {sku.artifactSummary}
+                    </p>
+                  </div>
 
-                  <Link
-                    href={`/learn/course/${sku.slug}`}
-                    style={{
-                      padding: "9px 14px",
-                      borderRadius: "8px",
-                      border: "1px solid #334155",
-                      background: "#020617",
-                      color: "#38bdf8",
-                      textDecoration: "none",
-                      fontSize: "12px",
-                      fontWeight: 600,
-                    }}
-                  >
-                    Launch Course Player →
-                  </Link>
-                </div>
-              </article>
+                  {/* Protected Milestone Escrow Value Notice */}
+                  <div className="flex items-start gap-2.5 rounded-xl border border-success/20 bg-success-subtle/30 p-3 text-xs">
+                    <ShieldCheck className="mt-0.5 size-4 shrink-0 text-success" />
+                    <span className="leading-relaxed text-muted-foreground">
+                      <strong className="font-medium text-foreground">
+                        Protected Milestone Escrow:
+                      </strong>{" "}
+                      Your tuition is locked until a Staff Engineer reviews your architecture and signs off on your defense.
+                    </span>
+                  </div>
+                </CardContent>
+
+                <CardFooter className="flex flex-col items-stretch justify-between gap-4 sm:flex-row sm:items-center">
+                  <div>
+                    <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                      Tuition Fee (Corporate L&amp;D Eligible)
+                    </div>
+                    <div className="flex items-baseline gap-1.5">
+                      <span className="font-mono text-2xl font-bold text-foreground">
+                        {formatInrMinor(sku.priceMinor)}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        + 18% GST
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2.5">
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      render={<Link href={`/learn/course/${sku.slug}`} />}
+                    >
+                      <BookOpen className="size-4" />
+                      Preview Curriculum
+                    </Button>
+
+                    <Button
+                      type="button"
+                      variant="default"
+                      size="lg"
+                      onClick={() => handleOpenQuoteDrawer(sku)}
+                    >
+                      Reserve Seat &amp; View GST Quote
+                      <ArrowRight className="size-4" />
+                    </Button>
+                  </div>
+                </CardFooter>
+              </Card>
             );
           })}
         </div>
+      </section>
 
-        {/* Sticky Interactive Checkout Quote Drawer */}
-        <div style={{ position: "sticky", top: "24px" }}>
-          <CheckoutQuoteDrawer
-            selectedSku={activeSku}
-            onSelectSku={(sku) => setActiveSku(sku)}
-          />
-        </div>
-      </div>
+      {/* Slide-Over shadcn/ui Sheet Checkout Drawer */}
+      <CheckoutQuoteDrawer
+        selectedSku={activeSku}
+        onSelectSku={(sku) => setActiveSku(sku)}
+        open={drawerOpen}
+        onOpenChange={setDrawerOpen}
+      />
     </main>
   );
 }

@@ -1,6 +1,17 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
+import Link from "next/link";
+import {
+  Building2,
+  CheckCircle2,
+  FileText,
+  Lock,
+  ShieldCheck,
+  Sparkles,
+  ArrowRight,
+  Award,
+} from "lucide-react";
 import {
   calculateIndiaGstBreakdown,
   computeCourseRevenueSplit,
@@ -11,6 +22,18 @@ import {
   type CourseSplitTier,
   type TenantCouponRecord,
 } from "@elluminar/domain-commerce";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 
 export type StorefrontSkuKind = "PROJECT" | "COURSE";
 export type DeliveryMode = "LIVE_COHORT" | "SELF_PACED";
@@ -144,28 +167,46 @@ export function formatInrMinor(amountMinor: bigint): string {
   return `${isNegative ? "-₹" : "₹"}${Number(rupees).toLocaleString("en-IN")}.${paisa}`;
 }
 
+const STATE_GST_PRESETS = [
+  {
+    label: "Karnataka (29) — Intra-State CGST 9% + SGST 9%",
+    shortLabel: "Karnataka (29) • CGST 9% + SGST 9%",
+    gstin: "29AABCE1234F1Z5",
+  },
+  {
+    label: "Maharashtra (27) — Inter-State IGST 18%",
+    shortLabel: "Maharashtra (27) • IGST 18%",
+    gstin: "27AABCM9876K1Z2",
+  },
+  {
+    label: "Delhi NCR (07) — Inter-State IGST 18%",
+    shortLabel: "Delhi (07) • IGST 18%",
+    gstin: "07AABCD4321G1Z9",
+  },
+] as const;
+
 export interface CheckoutQuoteDrawerProps {
   selectedSku: StorefrontSkuItem;
   onSelectSku?: (sku: StorefrontSkuItem) => void;
   onClose?: () => void;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export function CheckoutQuoteDrawer({
   selectedSku,
   onSelectSku,
   onClose,
+  open,
+  onOpenChange,
 }: CheckoutQuoteDrawerProps) {
   const [courseSplitTier, setCourseSplitTier] =
     useState<CourseSplitTier>("STANDARD_80_20");
   const [buyerGstin, setBuyerGstin] = useState<string>("29AABCE1234F1Z5");
   const [couponInput, setCouponInput] = useState<string>("ELLUMINAR25");
-  const [forceZeroScholarship, setForceZeroScholarship] =
-    useState<boolean>(false);
   const [checkoutSubmitted, setCheckoutSubmitted] = useState<boolean>(false);
 
-  const activeCouponCode = forceZeroScholarship
-    ? "SCHOLAR100"
-    : couponInput.trim().toUpperCase();
+  const activeCouponCode = couponInput.trim().toUpperCase();
 
   const quoteEngine = useMemo(() => {
     const matchedCoupon = DEMO_TENANT_COUPONS.find(
@@ -205,9 +246,9 @@ export function CheckoutQuoteDrawer({
         supplierStateCode: "29", // Karnataka (Bengaluru Headquarters)
         buyerGstin: buyerGstin.trim() || undefined,
       });
-    } catch (err) {
+    } catch {
       gstinError =
-        err instanceof Error ? err.message : "Invalid GSTIN format";
+        "Please enter a valid 15-character Indian GSTIN (for example, 29AABCE1234F1Z5) or leave blank for standard intra-state billing.";
       gstBreakdown = calculateIndiaGstBreakdown({
         taxableAmountMinor: netTaxableMinor,
         supplierStateCode: "29",
@@ -252,90 +293,18 @@ export function CheckoutQuoteDrawer({
     selectedSku.priceMinor,
   ]);
 
-  return (
-    <aside
-      aria-label="B2B Corporate Stipend GST & Double-Entry Escrow Checkout Drawer"
-      style={{
-        background: "#0f172a",
-        border: "1px solid #334155",
-        borderRadius: "16px",
-        padding: "24px",
-        color: "#f8fafc",
-        boxShadow: "0 20px 45px rgba(0, 0, 0, 0.45)",
-      }}
-    >
-      {/* Header */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "flex-start",
-          gap: "12px",
-          borderBottom: "1px solid #1e293b",
-          paddingBottom: "16px",
-          marginBottom: "18px",
-        }}
-      >
-        <div>
-          <div
-            style={{
-              display: "inline-block",
-              padding: "3px 10px",
-              borderRadius: "999px",
-              background: "rgba(56, 189, 248, 0.14)",
-              color: "#38bdf8",
-              fontSize: "11px",
-              fontWeight: 700,
-              letterSpacing: "0.06em",
-              textTransform: "uppercase",
-              marginBottom: "6px",
-            }}
-          >
-            B2B / L&amp;D Stipend Quote &amp; Escrow Engine
-          </div>
-          <h2 style={{ fontSize: "20px", margin: 0, color: "#f8fafc" }}>
-            {selectedSku.title}
-          </h2>
-          <div style={{ fontSize: "12px", color: "#94a3b8", marginTop: "4px" }}>
-            Invoice Seq: <code>{quoteEngine.invoiceNumber}</code> • SAC{" "}
-            <code>{quoteEngine.gstBreakdown.sacCode}</code> •{" "}
-            {selectedSku.credits} NEP Credits
-          </div>
-        </div>
-        {onClose && (
-          <button
-            type="button"
-            onClick={onClose}
-            style={{
-              background: "#1e293b",
-              color: "#cbd5e1",
-              border: "1px solid #334155",
-              borderRadius: "8px",
-              padding: "6px 10px",
-              fontSize: "12px",
-              cursor: "pointer",
-            }}
-          >
-            Close ✕
-          </button>
-        )}
-      </div>
+  const seatsRemaining = selectedSku.seatTelemetry
+    ? selectedSku.seatTelemetry.capacity - selectedSku.seatTelemetry.enrolled
+    : null;
 
-      {/* Quick SKU Selector */}
+  const drawerBody = (
+    <div className="flex flex-col gap-5">
+      {/* Program Switcher */}
       {onSelectSku && (
-        <div style={{ marginBottom: "16px" }}>
-          <label
-            htmlFor="drawer-sku-select"
-            style={{
-              display: "block",
-              fontSize: "12px",
-              fontWeight: 600,
-              color: "#cbd5e1",
-              marginBottom: "6px",
-            }}
-          >
-            1. Select Course or Proof-of-Work Project SKU
-          </label>
+        <div className="space-y-2">
+          <Label htmlFor="drawer-sku-select" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Selected Cohort or Capstone Program
+          </Label>
           <select
             id="drawer-sku-select"
             value={selectedSku.id}
@@ -348,566 +317,447 @@ export function CheckoutQuoteDrawer({
                 onSelectSku(found);
               }
             }}
-            style={{
-              width: "100%",
-              padding: "9px 12px",
-              borderRadius: "8px",
-              border: "1px solid #334155",
-              background: "#020617",
-              color: "#f8fafc",
-              fontSize: "13px",
-            }}
+            className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground shadow-xs focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
           >
             {STOREFRONT_CATALOG_SKUS.map((sku) => (
               <option key={sku.id} value={sku.id}>
-                [{sku.kind}] {sku.title} ({formatInrMinor(sku.priceMinor)})
+                {sku.title} — {formatInrMinor(sku.priceMinor)}
               </option>
             ))}
           </select>
         </div>
       )}
 
-      {/* Attribution Split Toggle (for Courses) or 3-Way Escrow Notice (for Projects) */}
-      <div style={{ marginBottom: "16px" }}>
-        <div
-          style={{
-            fontSize: "12px",
-            fontWeight: 600,
-            color: "#cbd5e1",
-            marginBottom: "6px",
-          }}
-        >
-          2. Revenue Attribution &amp; Escrow Policy
-        </div>
-        {selectedSku.kind === "COURSE" ? (
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
-            <button
-              type="button"
-              onClick={() => setCourseSplitTier("STANDARD_80_20")}
-              style={{
-                padding: "9px 12px",
-                borderRadius: "8px",
-                border:
-                  courseSplitTier === "STANDARD_80_20"
-                    ? "1px solid #38bdf8"
-                    : "1px solid #334155",
-                background:
-                  courseSplitTier === "STANDARD_80_20"
-                    ? "rgba(56, 189, 248, 0.16)"
-                    : "#020617",
-                color: "#f8fafc",
-                fontSize: "12px",
-                fontWeight: 600,
-                cursor: "pointer",
-              }}
-            >
-              STANDARD_80_20 (80% Creator / 20% Platform)
-            </button>
-            <button
-              type="button"
-              onClick={() => setCourseSplitTier("CREATOR_DIRECT_90_10")}
-              style={{
-                padding: "9px 12px",
-                borderRadius: "8px",
-                border:
-                  courseSplitTier === "CREATOR_DIRECT_90_10"
-                    ? "1px solid #34d399"
-                    : "1px solid #334155",
-                background:
-                  courseSplitTier === "CREATOR_DIRECT_90_10"
-                    ? "rgba(52, 211, 153, 0.16)"
-                    : "#020617",
-                color: "#f8fafc",
-                fontSize: "12px",
-                fontWeight: 600,
-                cursor: "pointer",
-              }}
-            >
-              CREATOR_DIRECT_90_10 (90% Creator / 10% Platform)
-            </button>
+      {/* Program Summary Strip */}
+      <div className="rounded-xl border border-border bg-muted/40 p-4">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <Badge variant="secondary" className="font-medium">
+            {selectedSku.domain}
+          </Badge>
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <Award className="size-3.5 text-primary" />
+            <span>{selectedSku.credits} Academic Credits</span>
           </div>
-        ) : (
-          <div
-            style={{
-              padding: "10px 12px",
-              borderRadius: "8px",
-              background: "#020617",
-              border: "1px solid #1e293b",
-              fontSize: "12px",
-              color: "#94a3b8",
-            }}
-          >
-            Deterministic 3-Way Project Escrow Split:{" "}
-            <strong style={{ color: "#38bdf8" }}>
-              50% Mentor ESCROW_LOCKED
-            </strong>{" "}
-            +{" "}
-            <strong style={{ color: "#c084fc" }}>
-              15% Author IP Royalty ESCROW_LOCKED
-            </strong>{" "}
-            +{" "}
-            <strong style={{ color: "#34d399" }}>
-              35% Platform AVAILABLE
-            </strong>{" "}
-            (released strictly upon final <code>PASS</code> verdict).
+        </div>
+        <h3 className="mt-2 font-display text-lg font-medium leading-snug text-foreground">
+          {selectedSku.title}
+        </h3>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Led by <span className="font-medium text-foreground">{selectedSku.mentorLead}</span>
+        </p>
+        {seatsRemaining !== null && (
+          <div className="mt-2.5 inline-flex items-center gap-1.5 rounded-full bg-distinction-subtle px-2.5 py-0.5 text-xs font-medium text-distinction-subtle-foreground">
+            <span className="size-1.5 rounded-full bg-distinction" />
+            Live Cohort — Only {seatsRemaining} Seats Left for October Batch
           </div>
         )}
       </div>
 
-      {/* Buyer GSTIN Input & State Presets */}
-      <div style={{ marginBottom: "16px" }}>
-        <label
-          htmlFor="buyer-gstin-input"
-          style={{
-            display: "block",
-            fontSize: "12px",
-            fontWeight: 600,
-            color: "#cbd5e1",
-            marginBottom: "6px",
-          }}
-        >
-          3. Buyer Corporate GSTIN (Supplier HQ: State 29 Karnataka)
-        </label>
-        <input
-          id="buyer-gstin-input"
-          type="text"
-          value={buyerGstin}
-          onChange={(e) => setBuyerGstin(e.target.value)}
-          placeholder="Enter 15-digit India GSTIN (e.g. 29AABCE1234F1Z5)"
-          style={{
-            width: "100%",
-            boxSizing: "border-box",
-            padding: "9px 12px",
-            borderRadius: "8px",
-            border: quoteEngine.gstinError
-              ? "1px solid #f87171"
-              : "1px solid #334155",
-            background: "#020617",
-            color: "#f8fafc",
-            fontSize: "13px",
-            fontFamily: "monospace",
-            marginBottom: "8px",
-          }}
-        />
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
-          <button
-            type="button"
-            onClick={() => setBuyerGstin("29AABCE1234F1Z5")}
-            style={{
-              padding: "5px 10px",
-              borderRadius: "6px",
-              border:
-                buyerGstin === "29AABCE1234F1Z5"
-                  ? "1px solid #38bdf8"
-                  : "1px solid #334155",
-              background: "#1e293b",
-              color: "#e2e8f0",
-              fontSize: "11px",
-              cursor: "pointer",
-            }}
-          >
-            KA Intra-State (`29AABCE1234F1Z5` → CGST 9% + SGST 9%)
-          </button>
-          <button
-            type="button"
-            onClick={() => setBuyerGstin("27AABCM9876K1Z2")}
-            style={{
-              padding: "5px 10px",
-              borderRadius: "6px",
-              border:
-                buyerGstin === "27AABCM9876K1Z2"
-                  ? "1px solid #c084fc"
-                  : "1px solid #334155",
-              background: "#1e293b",
-              color: "#e2e8f0",
-              fontSize: "11px",
-              cursor: "pointer",
-            }}
-          >
-            MH Inter-State (`27AABCM9876K1Z2` → IGST 18%)
-          </button>
+      {/* 1-Click Scholarship & Corporate Grant Chips */}
+      <div className="space-y-2.5">
+        <div className="flex items-center justify-between">
+          <Label htmlFor="tenant-coupon-input" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Scholarship or Corporate L&amp;D Grant Code
+          </Label>
+          <span className="text-[11px] font-medium text-success">
+            Instant Eligibility Verification
+          </span>
         </div>
-        {quoteEngine.gstinError && (
-          <div style={{ color: "#f87171", fontSize: "12px", marginTop: "6px" }}>
-            {quoteEngine.gstinError}
-          </div>
-        )}
-      </div>
 
-      {/* Tenant-Scoped Coupon & ₹0 Free Checkout Toggle */}
-      <div style={{ marginBottom: "18px" }}>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: "6px",
-          }}
-        >
-          <label
-            htmlFor="tenant-coupon-input"
-            style={{ fontSize: "12px", fontWeight: 600, color: "#cbd5e1" }}
-          >
-            4. Tenant-Scoped Coupon (`{selectedSku.organizationId}`)
-          </label>
-          <label
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "6px",
-              fontSize: "12px",
-              color: "#34d399",
-              cursor: "pointer",
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          <button
+            type="button"
+            onClick={() => {
+              setCheckoutSubmitted(false);
+              setCouponInput("ELLUMINAR25");
             }}
+            className={`flex items-center justify-between rounded-lg border px-3 py-2 text-left transition-all ${
+              activeCouponCode === "ELLUMINAR25"
+                ? "border-primary bg-primary-subtle/60 text-foreground shadow-xs"
+                : "border-border bg-background text-muted-foreground hover:border-foreground/20 hover:text-foreground"
+            }`}
           >
-            <input
-              type="checkbox"
-              checked={forceZeroScholarship}
-              onChange={(e) => setForceZeroScholarship(e.target.checked)}
-            />
-            Test ₹0 Free Checkout (`SCHOLAR100`)
-          </label>
+            <div>
+              <div className="font-mono text-xs font-semibold text-foreground">ELLUMINAR25</div>
+              <div className="text-[11px] text-muted-foreground">25% L&amp;D Tuition Grant</div>
+            </div>
+            <Sparkles className="size-3.5 text-primary" />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setCheckoutSubmitted(false);
+              setCouponInput("SCHOLAR100");
+            }}
+            className={`flex items-center justify-between rounded-lg border px-3 py-2 text-left transition-all ${
+              activeCouponCode === "SCHOLAR100"
+                ? "border-success bg-success-subtle text-foreground shadow-xs"
+                : "border-border bg-background text-muted-foreground hover:border-foreground/20 hover:text-foreground"
+            }`}
+          >
+            <div>
+              <div className="font-mono text-xs font-semibold text-foreground">SCHOLAR100</div>
+              <div className="text-[11px] text-success-subtle-foreground">100% Full Scholarship (₹0)</div>
+            </div>
+            <CheckCircle2 className="size-3.5 text-success" />
+          </button>
         </div>
-        <div style={{ display: "flex", gap: "8px", marginBottom: "6px" }}>
-          <input
+
+        <div className="flex gap-2">
+          <Input
             id="tenant-coupon-input"
             type="text"
-            disabled={forceZeroScholarship}
-            value={activeCouponCode}
-            onChange={(e) => setCouponInput(e.target.value)}
-            placeholder="ELLUMINAR25, SCHOLAR100, or OTHER_ORG_50"
-            style={{
-              flex: 1,
-              padding: "8px 12px",
-              borderRadius: "8px",
-              border: "1px solid #334155",
-              background: "#020617",
-              color: "#f8fafc",
-              fontSize: "13px",
-              fontFamily: "monospace",
+            value={couponInput}
+            onChange={(e) => {
+              setCheckoutSubmitted(false);
+              setCouponInput(e.target.value);
             }}
+            placeholder="Enter scholarship or corporate grant code"
+            className="font-mono text-xs uppercase"
           />
-          {DEMO_TENANT_COUPONS.map((cpn) => (
-            <button
-              key={cpn.id}
+          {couponInput && (
+            <Button
               type="button"
+              variant="outline"
+              size="default"
               onClick={() => {
-                setForceZeroScholarship(false);
-                setCouponInput(cpn.code);
-              }}
-              style={{
-                padding: "6px 10px",
-                borderRadius: "8px",
-                border: "1px solid #334155",
-                background:
-                  activeCouponCode === cpn.code ? "#0369a1" : "#1e293b",
-                color: "#f8fafc",
-                fontSize: "11px",
-                fontWeight: 600,
-                cursor: "pointer",
+                setCheckoutSubmitted(false);
+                setCouponInput("");
               }}
             >
-              {cpn.code}
-            </button>
-          ))}
+              Clear
+            </Button>
+          )}
         </div>
+
         {quoteEngine.couponValidation && !quoteEngine.couponValidation.valid && (
-          <div style={{ fontSize: "12px", color: "#fbbf24" }}>
-            Coupon rejected by domain invariant:{" "}
-            <code>{quoteEngine.couponValidation.reason}</code>
-          </div>
+          <p className="text-xs text-destructive">
+            This grant code is reserved for another partner organization or has expired.
+          </p>
         )}
       </div>
 
-      {/* Live SAC 999293 GST Invoice & Double-Entry Ledger Split Breakdown */}
-      <div
-        style={{
-          background: "#020617",
-          border: "1px solid #1e293b",
-          borderRadius: "12px",
-          padding: "16px",
-          marginBottom: "18px",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            fontSize: "13px",
-            marginBottom: "6px",
-          }}
-        >
-          <span style={{ color: "#94a3b8" }}>Gross Catalog Price:</span>
-          <span>{formatInrMinor(selectedSku.priceMinor)}</span>
-        </div>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            fontSize: "13px",
-            marginBottom: "6px",
-          }}
-        >
-          <span style={{ color: "#94a3b8" }}>
-            Tenant Coupon Discount ({activeCouponCode || "NONE"}):
+      {/* Corporate GSTIN & Place of Supply Selector */}
+      <div className="space-y-2.5">
+        <div className="flex items-center justify-between">
+          <Label htmlFor="buyer-gstin-input" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Corporate GSTIN &amp; Place of Supply (SAC 999293)
+          </Label>
+          <span className="text-[11px] text-muted-foreground">
+            100% Input Tax Credit Eligible
           </span>
-          <span style={{ color: "#34d399" }}>
-            -{formatInrMinor(quoteEngine.discountMinor)}
-          </span>
-        </div>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            fontSize: "13px",
-            fontWeight: 600,
-            paddingTop: "6px",
-            borderTop: "1px dashed #1e293b",
-            marginBottom: "8px",
-          }}
-        >
-          <span>Net Taxable Value (`SAC {quoteEngine.gstBreakdown.sacCode}`):</span>
-          <span>{formatInrMinor(quoteEngine.netTaxableMinor)}</span>
         </div>
 
-        {/* GST Tax Lines */}
-        {quoteEngine.gstBreakdown.isInterState ? (
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              fontSize: "12px",
-              color: "#c084fc",
-              marginBottom: "8px",
-            }}
-          >
-            <span>
-              Inter-State IGST (18% • State {quoteEngine.gstBreakdown.supplierStateCode}{" "}
-              → {quoteEngine.gstBreakdown.placeOfSupplyStateCode}):
-            </span>
-            <span>{formatInrMinor(quoteEngine.gstBreakdown.igstAmountMinor)}</span>
-          </div>
-        ) : (
-          <>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                fontSize: "12px",
-                color: "#38bdf8",
-                marginBottom: "4px",
-              }}
-            >
-              <span>Intra-State CGST (9% • State 29 KA):</span>
-              <span>
-                {formatInrMinor(quoteEngine.gstBreakdown.cgstAmountMinor)}
-              </span>
-            </div>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                fontSize: "12px",
-                color: "#38bdf8",
-                marginBottom: "8px",
-              }}
-            >
-              <span>Intra-State SGST (9% • State 29 KA):</span>
-              <span>
-                {formatInrMinor(quoteEngine.gstBreakdown.sgstAmountMinor)}
-              </span>
-            </div>
-          </>
+        <div className="flex flex-wrap gap-1.5">
+          {STATE_GST_PRESETS.map((preset) => {
+            const isSelected = buyerGstin.trim().toUpperCase() === preset.gstin;
+            return (
+              <button
+                key={preset.gstin}
+                type="button"
+                onClick={() => setBuyerGstin(preset.gstin)}
+                className={`rounded-md border px-2.5 py-1.5 text-left text-xs transition-all ${
+                  isSelected
+                    ? "border-primary bg-primary-subtle/50 font-medium text-foreground"
+                    : "border-border bg-background text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {preset.shortLabel}
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="relative">
+          <Building2 className="pointer-events-none absolute top-2.5 left-3 size-4 text-muted-foreground" />
+          <Input
+            id="buyer-gstin-input"
+            type="text"
+            value={buyerGstin}
+            onChange={(e) => setBuyerGstin(e.target.value)}
+            placeholder="29AABCE1234F1Z5 (Optional Corporate GSTIN)"
+            className="pl-9 font-mono text-xs uppercase"
+          />
+        </div>
+
+        {quoteEngine.gstinError && (
+          <p className="text-xs text-destructive">{quoteEngine.gstinError}</p>
         )}
+      </div>
 
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            fontSize: "16px",
-            fontWeight: 700,
-            paddingTop: "8px",
-            borderTop: "1px solid #334155",
-            color: "#f8fafc",
-          }}
-        >
-          <span>Total B2B / Stipend Invoice Payable:</span>
-          <span style={{ color: "#38bdf8" }}>
+      {/* Tax Invoice Breakdown */}
+      <div className="rounded-xl border border-border bg-card p-4 shadow-xs space-y-2.5">
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <span className="font-medium text-foreground flex items-center gap-1.5">
+            <FileText className="size-3.5 text-primary" />
+            GST Tax Invoice Summary
+          </span>
+          <span className="font-mono text-[11px]">
+            Ref: {quoteEngine.invoiceNumber} • SAC {quoteEngine.gstBreakdown.sacCode}
+          </span>
+        </div>
+
+        <Separator />
+
+        <div className="space-y-1.5 text-xs">
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Standard Program Tuition</span>
+            <span className="font-mono text-foreground">{formatInrMinor(selectedSku.priceMinor)}</span>
+          </div>
+
+          {quoteEngine.discountMinor > 0n && (
+            <div className="flex justify-between text-success-subtle-foreground">
+              <span>Scholarship / Grant Applied ({activeCouponCode})</span>
+              <span className="font-mono font-medium">-{formatInrMinor(quoteEngine.discountMinor)}</span>
+            </div>
+          )}
+
+          <div className="flex justify-between pt-1 font-medium text-foreground">
+            <span>Net Taxable Tuition Value</span>
+            <span className="font-mono">{formatInrMinor(quoteEngine.netTaxableMinor)}</span>
+          </div>
+
+          {quoteEngine.gstBreakdown.isInterState ? (
+            <div className="flex justify-between text-muted-foreground">
+              <span>
+                Inter-State IGST (18% • State {quoteEngine.gstBreakdown.placeOfSupplyStateCode})
+              </span>
+              <span className="font-mono">{formatInrMinor(quoteEngine.gstBreakdown.igstAmountMinor)}</span>
+            </div>
+          ) : (
+            <>
+              <div className="flex justify-between text-muted-foreground">
+                <span>Intra-State CGST (9% • Karnataka 29)</span>
+                <span className="font-mono">{formatInrMinor(quoteEngine.gstBreakdown.cgstAmountMinor)}</span>
+              </div>
+              <div className="flex justify-between text-muted-foreground">
+                <span>Intra-State SGST (9% • Karnataka 29)</span>
+                <span className="font-mono">{formatInrMinor(quoteEngine.gstBreakdown.sgstAmountMinor)}</span>
+              </div>
+            </>
+          )}
+        </div>
+
+        <Separator />
+
+        <div className="flex items-baseline justify-between pt-0.5">
+          <div>
+            <div className="text-sm font-semibold text-foreground">Total Payable (Incl. GST)</div>
+            <div className="text-[11px] text-muted-foreground">
+              {quoteEngine.zeroRupeeCheckout
+                ? "100% Covered by Fellowship Scholarship"
+                : "Instant GST E-Invoice issued upon enrollment"}
+            </div>
+          </div>
+          <div className="font-mono text-xl font-bold text-primary">
             {formatInrMinor(quoteEngine.gstBreakdown.totalInvoiceAmountMinor)}
-          </span>
+          </div>
         </div>
       </div>
 
-      {/* Double-Entry Ledger Allocation Preview */}
-      <div
-        style={{
-          background: "rgba(15, 23, 42, 0.9)",
-          border: "1px solid #1e293b",
-          borderRadius: "12px",
-          padding: "14px",
-          marginBottom: "18px",
-        }}
-      >
-        <div
-          style={{
-            fontSize: "12px",
-            fontWeight: 700,
-            color: "#cbd5e1",
-            marginBottom: "8px",
-            textTransform: "uppercase",
-            letterSpacing: "0.04em",
-          }}
-        >
-          Double-Entry Ledger Journal (`SUM(amountMinor) === 0n`)
+      {/* Protected Milestone Escrow Breakdown Card */}
+      <div className="rounded-xl border border-success/25 bg-success-subtle/40 p-4 space-y-3">
+        <div className="flex items-start gap-2.5">
+          <ShieldCheck className="mt-0.5 size-4 shrink-0 text-success" />
+          <div>
+            <div className="text-xs font-semibold text-foreground">
+              Protected Milestone Escrow Guarantee
+            </div>
+            <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
+              Your tuition is locked until a Staff Engineer reviews your architecture and signs off on your defense.
+            </p>
+          </div>
         </div>
 
-        {quoteEngine.zeroRupeeCheckout ? (
-          <div
-            style={{
-              padding: "10px",
-              borderRadius: "8px",
-              background: "rgba(52, 211, 153, 0.12)",
-              border: "1px solid rgba(52, 211, 153, 0.35)",
-              fontSize: "12px",
-              color: "#6ee7b7",
-            }}
-          >
-            <strong>₹0 Free Checkout Bypass Active:</strong> Status{" "}
-            <code>{quoteEngine.zeroRupeeCheckout.status}</code> via{" "}
-            <code>{quoteEngine.zeroRupeeCheckout.gateway}</code> (
-            <code>requiresExternalGateway: false</code>). Instant seat &amp;
-            studio provisioning without payment gateway redirect.
+        {selectedSku.kind === "PROJECT" && quoteEngine.projectSplit ? (
+          <div className="grid grid-cols-3 gap-2 pt-1">
+            <div className="rounded-lg border border-border bg-background/80 p-2.5">
+              <div className="text-[11px] font-medium text-muted-foreground">50% Mentor Escrow</div>
+              <div className="mt-0.5 font-mono text-xs font-semibold text-foreground">
+                {formatInrMinor(quoteEngine.projectSplit.mentorEscrowMinor)}
+              </div>
+              <div className="mt-0.5 text-[10px] text-success-subtle-foreground">
+                Staff Review Lock
+              </div>
+            </div>
+
+            <div className="rounded-lg border border-border bg-background/80 p-2.5">
+              <div className="text-[11px] font-medium text-muted-foreground">15% Author Royalty</div>
+              <div className="mt-0.5 font-mono text-xs font-semibold text-foreground">
+                {formatInrMinor(quoteEngine.projectSplit.authorRoyaltyEscrowMinor)}
+              </div>
+              <div className="mt-0.5 text-[10px] text-muted-foreground">
+                Curriculum IP Share
+              </div>
+            </div>
+
+            <div className="rounded-lg border border-border bg-background/80 p-2.5">
+              <div className="text-[11px] font-medium text-muted-foreground">35% Lab Infra</div>
+              <div className="mt-0.5 font-mono text-xs font-semibold text-foreground">
+                {formatInrMinor(quoteEngine.projectSplit.platformShareMinor)}
+              </div>
+              <div className="mt-0.5 text-[10px] text-muted-foreground">
+                Sandbox &amp; Voice Studio
+              </div>
+            </div>
           </div>
-        ) : quoteEngine.projectSplit ? (
-          <ul
-            style={{
-              listStyle: "none",
-              padding: 0,
-              margin: 0,
-              fontSize: "12px",
-              display: "grid",
-              gap: "6px",
-            }}
-          >
-            <li style={{ display: "flex", justifyContent: "space-between" }}>
-              <span style={{ color: "#94a3b8" }}>
-                DR Buyer Clearing (`USER / AVAILABLE`):
-              </span>
-              <code style={{ color: "#f87171" }}>
-                {formatInrMinor(-quoteEngine.projectSplit.netAmountMinor)}
-              </code>
-            </li>
-            <li style={{ display: "flex", justifyContent: "space-between" }}>
-              <span style={{ color: "#38bdf8" }}>
-                CR Mentor Escrow (`MENTOR / ESCROW_LOCKED` 50%):
-              </span>
-              <code style={{ color: "#38bdf8" }}>
-                +{formatInrMinor(quoteEngine.projectSplit.mentorEscrowMinor)}
-              </code>
-            </li>
-            <li style={{ display: "flex", justifyContent: "space-between" }}>
-              <span style={{ color: "#c084fc" }}>
-                CR Author IP Royalty (`TENANT / ESCROW_LOCKED` 15%):
-              </span>
-              <code style={{ color: "#c084fc" }}>
-                +
-                {formatInrMinor(
-                  quoteEngine.projectSplit.authorRoyaltyEscrowMinor
-                )}
-              </code>
-            </li>
-            <li style={{ display: "flex", justifyContent: "space-between" }}>
-              <span style={{ color: "#34d399" }}>
-                CR Elluminar Platform (`PLATFORM / AVAILABLE` 35%):
-              </span>
-              <code style={{ color: "#34d399" }}>
-                +{formatInrMinor(quoteEngine.projectSplit.platformShareMinor)}
-              </code>
-            </li>
-          </ul>
         ) : quoteEngine.courseSplit ? (
-          <ul
-            style={{
-              listStyle: "none",
-              padding: 0,
-              margin: 0,
-              fontSize: "12px",
-              display: "grid",
-              gap: "6px",
-            }}
-          >
-            <li style={{ display: "flex", justifyContent: "space-between" }}>
-              <span style={{ color: "#94a3b8" }}>
-                DR Buyer Clearing (`USER / AVAILABLE`):
-              </span>
-              <code style={{ color: "#f87171" }}>
-                {formatInrMinor(-quoteEngine.courseSplit.netAmountMinor)}
-              </code>
-            </li>
-            <li style={{ display: "flex", justifyContent: "space-between" }}>
-              <span style={{ color: "#38bdf8" }}>
-                CR Creator Revenue (`TENANT / AVAILABLE`{" "}
-                {quoteEngine.courseSplit.creatorBps / 100}%):
-              </span>
-              <code style={{ color: "#38bdf8" }}>
-                +{formatInrMinor(quoteEngine.courseSplit.creatorShareMinor)}
-              </code>
-            </li>
-            <li style={{ display: "flex", justifyContent: "space-between" }}>
-              <span style={{ color: "#34d399" }}>
-                CR Elluminar Platform (`PLATFORM / AVAILABLE`{" "}
-                {quoteEngine.courseSplit.platformBps / 100}%):
-              </span>
-              <code style={{ color: "#34d399" }}>
-                +{formatInrMinor(quoteEngine.courseSplit.platformShareMinor)}
-              </code>
-            </li>
-          </ul>
+          <div className="space-y-2 pt-1">
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setCourseSplitTier("STANDARD_80_20")}
+                className={`rounded-lg border p-2 text-left text-xs transition-all ${
+                  courseSplitTier === "STANDARD_80_20"
+                    ? "border-primary bg-background font-medium text-foreground"
+                    : "border-border bg-background/50 text-muted-foreground"
+                }`}
+              >
+                <div>Standard Guild Track</div>
+                <div className="font-mono text-[11px] text-muted-foreground">
+                  80% Faculty ({formatInrMinor(quoteEngine.courseSplit.creatorShareMinor)})
+                </div>
+              </button>
+              <button
+                type="button"
+                onClick={() => setCourseSplitTier("CREATOR_DIRECT_90_10")}
+                className={`rounded-lg border p-2 text-left text-xs transition-all ${
+                  courseSplitTier === "CREATOR_DIRECT_90_10"
+                    ? "border-primary bg-background font-medium text-foreground"
+                    : "border-border bg-background/50 text-muted-foreground"
+                }`}
+              >
+                <div>Fellow Referral Link</div>
+                <div className="font-mono text-[11px] text-muted-foreground">
+                  90% Faculty Attribution
+                </div>
+              </button>
+            </div>
+          </div>
         ) : null}
       </div>
 
-      {/* CTA Button */}
-      <button
-        type="button"
-        onClick={() => setCheckoutSubmitted(true)}
-        style={{
-          width: "100%",
-          padding: "13px 18px",
-          borderRadius: "10px",
-          border: "none",
-          background: quoteEngine.zeroRupeeCheckout
-            ? "#10b981"
-            : "linear-gradient(135deg, #0284c7, #4f46e5)",
-          color: "#ffffff",
-          fontSize: "14px",
-          fontWeight: 700,
-          cursor: "pointer",
+      {/* Primary Action Button */}
+      <div className="space-y-3 pt-1">
+        <Button
+          type="button"
+          size="lg"
+          className="h-11 w-full text-sm font-semibold shadow-sm"
+          onClick={() => setCheckoutSubmitted(true)}
+        >
+          <Lock className="size-4" />
+          {quoteEngine.zeroRupeeCheckout
+            ? "Confirm Instant ₹0 Scholarship Enrollment"
+            : `Reserve Seat & Lock Protected Escrow (${formatInrMinor(
+                quoteEngine.gstBreakdown.totalInvoiceAmountMinor
+              )})`}
+        </Button>
+
+        {checkoutSubmitted && (
+          <div
+            role="status"
+            className="rounded-xl border border-success/40 bg-success-subtle p-4 text-xs text-success-subtle-foreground space-y-2.5"
+          >
+            <div className="flex items-center justify-between font-semibold text-foreground">
+              <span className="flex items-center gap-1.5">
+                <CheckCircle2 className="size-4 text-success" />
+                Seat Reserved &amp; Tax Invoice Generated
+              </span>
+              <Badge variant="outline" className="font-mono text-[11px] bg-background">
+                {quoteEngine.invoiceNumber}
+              </Badge>
+            </div>
+            <p className="leading-relaxed">
+              Your enrollment for <strong>{selectedSku.title}</strong> is confirmed under Protected Milestone Escrow. Your official GST e-invoice (SAC {quoteEngine.gstBreakdown.sacCode}) is ready for download.
+            </p>
+            <div className="pt-1">
+              <Button
+                variant="default"
+                size="sm"
+                className="w-full"
+                render={<Link href={`/learn/course/${selectedSku.slug}`} />}
+              >
+                Enter Course &amp; Artifact Studio
+                <ArrowRight className="size-3.5" />
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  // Slide-over Sheet mode when `open` boolean is provided
+  if (typeof open === "boolean") {
+    return (
+      <Sheet
+        open={open}
+        onOpenChange={(nextOpen) => {
+          onOpenChange?.(nextOpen);
+          if (!nextOpen && onClose) {
+            onClose();
+          }
         }}
       >
-        {quoteEngine.zeroRupeeCheckout
-          ? "Complete Instant ₹0 Scholarship Enrollment →"
-          : `Lock Escrow & Generate GST Invoice (${formatInrMinor(
-              quoteEngine.gstBreakdown.totalInvoiceAmountMinor
-            )}) →`}
-      </button>
-
-      {checkoutSubmitted && (
-        <div
-          style={{
-            marginTop: "12px",
-            padding: "12px",
-            borderRadius: "8px",
-            background: "rgba(16, 185, 129, 0.14)",
-            border: "1px solid rgba(16, 185, 129, 0.4)",
-            fontSize: "12px",
-            color: "#a7f3d0",
-          }}
+        <SheetContent
+          side="right"
+          className="w-full overflow-y-auto p-6 sm:max-w-lg"
         >
-          ✓ Order locked via CAS (`version: 1 → 2`) &amp; Tax Invoice{" "}
-          <code>{quoteEngine.invoiceNumber}</code> queued for{" "}
-          <strong>{selectedSku.title}</strong>.
+          <SheetHeader className="p-0 pb-2 text-left">
+            <div className="flex items-center gap-2">
+              <Badge variant="default" className="text-[11px]">
+                Protected Milestone Escrow
+              </Badge>
+              <Badge variant="outline" className="font-mono text-[11px]">
+                SAC 999293
+              </Badge>
+            </div>
+            <SheetTitle className="mt-2 font-display text-2xl font-medium">
+              Reserve Seat &amp; GST Tax Quote
+            </SheetTitle>
+            <SheetDescription>
+              Configure corporate GST input credit, apply scholarship grants, and review your milestone escrow guarantee.
+            </SheetDescription>
+          </SheetHeader>
+
+          {drawerBody}
+        </SheetContent>
+      </Sheet>
+    );
+  }
+
+  // Standalone inline card mode when rendered without Sheet state
+  return (
+    <aside
+      aria-label="Program Tuition, GST Invoice & Protected Escrow Quote"
+      className="rounded-2xl border border-border bg-card p-6 text-card-foreground shadow-sm"
+    >
+      <div className="mb-5 flex items-start justify-between gap-3 border-b border-border pb-4">
+        <div>
+          <div className="flex items-center gap-2">
+            <Badge variant="default" className="text-[11px]">
+              Protected Milestone Escrow
+            </Badge>
+            <Badge variant="outline" className="font-mono text-[11px]">
+              SAC 999293
+            </Badge>
+          </div>
+          <h2 className="mt-2 font-display text-xl font-medium text-foreground">
+            Reserve Seat &amp; GST Tax Quote
+          </h2>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            Instant B2B corporate tax invoice &amp; verified milestone protection.
+          </p>
         </div>
-      )}
+        {onClose && (
+          <Button variant="ghost" size="sm" onClick={onClose}>
+            Close
+          </Button>
+        )}
+      </div>
+
+      {drawerBody}
     </aside>
   );
 }
