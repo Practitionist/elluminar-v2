@@ -15,6 +15,13 @@ export default function CleanArchitectureLandingPage() {
 
   const portals = [
     {
+      href: "/sign-in",
+      badge: "B2B OIDC SSO & Auth",
+      title: "Dynamic Enterprise SSO & Consumer Guard",
+      description:
+        "Live corporate domain discovery (@tech-gcc.example.com -> OIDC SSO) with personal email domain blocklist & Better-Auth session wiring.",
+    },
+    {
       href: "/explore",
       badge: "Outcome Storefront & GST Checkout",
       title: "Role Tracks, Catalog & B2B/Stipend Drawer",

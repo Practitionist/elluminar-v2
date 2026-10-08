@@ -6,6 +6,7 @@ export * from "./generated/prisma/client";
 export * from "./env";
 export * from "./repositories/commerce-repository";
 export * from "./repositories/ai-wallet-repository";
+export * from "./repositories/artifact-repository";
 export * from "../prisma/seed";
 
 export interface DbClientOptions {
