@@ -1,0 +1,9 @@
+export { HeroSection } from "./hero-section";
+export { TrustBarSection } from "./trust-bar-section";
+export { HowItWorksSection } from "./how-it-works-section";
+export { FeaturedTracksSection } from "./featured-tracks-section";
+export { CredentialCenterpieceSection } from "./credential-centerpiece-section";
+export { MentorWallSection } from "./mentor-wall-section";
+export { CreatorRoyaltySection } from "./creator-royalty-section";
+export { PricingSection } from "./pricing-section";
+export { FaqSection } from "./faq-section";
