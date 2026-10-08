@@ -11,12 +11,15 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1147.0",
+    "@aws-sdk/s3-request-presigner": "^3.1147.0",
     "@better-auth/sso": "^1.7.7",
     "@elluminar/db": "workspace:*",
-    "@elluminar/domain-identity": "workspace:*",
     "@elluminar/domain-ai-mentorship": "workspace:*",
     "@elluminar/domain-artifacts": "workspace:*",
     "@elluminar/domain-commerce": "workspace:*",
+    "@elluminar/domain-identity": "workspace:*",
+    "@google/genai": "^2.27.0",
     "@hono/zod-validator": "^0.9.1",
     "@upstash/redis": "^1.39.0",
     "@upstash/workflow": "^1.4.0",

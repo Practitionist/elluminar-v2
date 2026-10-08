@@ -107,4 +107,6 @@ export function computeAiTokenCreditDebit(params: {
 export * from "./wallet-cas";
 export * from "./engines";
 export * from "./sla-workflow";
+export * from "./gemini-client";
+
 

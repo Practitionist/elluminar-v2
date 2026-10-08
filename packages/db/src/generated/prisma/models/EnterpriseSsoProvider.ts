@@ -27,6 +27,7 @@ export type AggregateEnterpriseSsoProvider = {
 export type EnterpriseSsoProviderMinAggregateOutputType = {
   id: string | null
   organizationId: string | null
+  userId: string | null
   providerId: string | null
   issuer: string | null
   domain: string | null
@@ -37,6 +38,7 @@ export type EnterpriseSsoProviderMinAggregateOutputType = {
 export type EnterpriseSsoProviderMaxAggregateOutputType = {
   id: string | null
   organizationId: string | null
+  userId: string | null
   providerId: string | null
   issuer: string | null
   domain: string | null
@@ -47,6 +49,7 @@ export type EnterpriseSsoProviderMaxAggregateOutputType = {
 export type EnterpriseSsoProviderCountAggregateOutputType = {
   id: number
   organizationId: number
+  userId: number
   providerId: number
   issuer: number
   domain: number
@@ -61,6 +64,7 @@ export type EnterpriseSsoProviderCountAggregateOutputType = {
 export type EnterpriseSsoProviderMinAggregateInputType = {
   id?: true
   organizationId?: true
+  userId?: true
   providerId?: true
   issuer?: true
   domain?: true
@@ -71,6 +75,7 @@ export type EnterpriseSsoProviderMinAggregateInputType = {
 export type EnterpriseSsoProviderMaxAggregateInputType = {
   id?: true
   organizationId?: true
+  userId?: true
   providerId?: true
   issuer?: true
   domain?: true
@@ -81,6 +86,7 @@ export type EnterpriseSsoProviderMaxAggregateInputType = {
 export type EnterpriseSsoProviderCountAggregateInputType = {
   id?: true
   organizationId?: true
+  userId?: true
   providerId?: true
   issuer?: true
   domain?: true
@@ -166,6 +172,7 @@ export type EnterpriseSsoProviderGroupByArgs<ExtArgs extends runtime.Types.Exten
 export type EnterpriseSsoProviderGroupByOutputType = {
   id: string
   organizationId: string
+  userId: string | null
   providerId: string
   issuer: string
   domain: string
@@ -199,6 +206,7 @@ export type EnterpriseSsoProviderWhereInput = {
   NOT?: Prisma.EnterpriseSsoProviderWhereInput | Prisma.EnterpriseSsoProviderWhereInput[]
   id?: Prisma.StringFilter<"EnterpriseSsoProvider"> | string
   organizationId?: Prisma.StringFilter<"EnterpriseSsoProvider"> | string
+  userId?: Prisma.StringNullableFilter<"EnterpriseSsoProvider"> | string | null
   providerId?: Prisma.StringFilter<"EnterpriseSsoProvider"> | string
   issuer?: Prisma.StringFilter<"EnterpriseSsoProvider"> | string
   domain?: Prisma.StringFilter<"EnterpriseSsoProvider"> | string
@@ -207,11 +215,13 @@ export type EnterpriseSsoProviderWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"EnterpriseSsoProvider"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"EnterpriseSsoProvider"> | Date | string
   organization?: Prisma.XOR<Prisma.OrganizationScalarRelationFilter, Prisma.OrganizationWhereInput>
+  user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }
 
 export type EnterpriseSsoProviderOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   organizationId?: Prisma.SortOrder
+  userId?: Prisma.SortOrderInput | Prisma.SortOrder
   providerId?: Prisma.SortOrder
   issuer?: Prisma.SortOrder
   domain?: Prisma.SortOrder
@@ -220,6 +230,7 @@ export type EnterpriseSsoProviderOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   organization?: Prisma.OrganizationOrderByWithRelationInput
+  user?: Prisma.UserOrderByWithRelationInput
 }
 
 export type EnterpriseSsoProviderWhereUniqueInput = Prisma.AtLeast<{
@@ -230,17 +241,20 @@ export type EnterpriseSsoProviderWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.EnterpriseSsoProviderWhereInput[]
   NOT?: Prisma.EnterpriseSsoProviderWhereInput | Prisma.EnterpriseSsoProviderWhereInput[]
   organizationId?: Prisma.StringFilter<"EnterpriseSsoProvider"> | string
+  userId?: Prisma.StringNullableFilter<"EnterpriseSsoProvider"> | string | null
   issuer?: Prisma.StringFilter<"EnterpriseSsoProvider"> | string
   oidcConfig?: Prisma.JsonNullableFilter<"EnterpriseSsoProvider">
   samlConfig?: Prisma.JsonNullableFilter<"EnterpriseSsoProvider">
   createdAt?: Prisma.DateTimeFilter<"EnterpriseSsoProvider"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"EnterpriseSsoProvider"> | Date | string
   organization?: Prisma.XOR<Prisma.OrganizationScalarRelationFilter, Prisma.OrganizationWhereInput>
+  user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }, "id" | "providerId" | "domain">
 
 export type EnterpriseSsoProviderOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   organizationId?: Prisma.SortOrder
+  userId?: Prisma.SortOrderInput | Prisma.SortOrder
   providerId?: Prisma.SortOrder
   issuer?: Prisma.SortOrder
   domain?: Prisma.SortOrder
@@ -259,6 +273,7 @@ export type EnterpriseSsoProviderScalarWhereWithAggregatesInput = {
   NOT?: Prisma.EnterpriseSsoProviderScalarWhereWithAggregatesInput | Prisma.EnterpriseSsoProviderScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"EnterpriseSsoProvider"> | string
   organizationId?: Prisma.StringWithAggregatesFilter<"EnterpriseSsoProvider"> | string
+  userId?: Prisma.StringNullableWithAggregatesFilter<"EnterpriseSsoProvider"> | string | null
   providerId?: Prisma.StringWithAggregatesFilter<"EnterpriseSsoProvider"> | string
   issuer?: Prisma.StringWithAggregatesFilter<"EnterpriseSsoProvider"> | string
   domain?: Prisma.StringWithAggregatesFilter<"EnterpriseSsoProvider"> | string
@@ -278,11 +293,13 @@ export type EnterpriseSsoProviderCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   organization: Prisma.OrganizationCreateNestedOneWithoutSsoProvidersInput
+  user?: Prisma.UserCreateNestedOneWithoutEnterpriseSsoProvidersInput
 }
 
 export type EnterpriseSsoProviderUncheckedCreateInput = {
   id?: string
   organizationId: string
+  userId?: string | null
   providerId: string
   issuer: string
   domain: string
@@ -302,11 +319,13 @@ export type EnterpriseSsoProviderUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   organization?: Prisma.OrganizationUpdateOneRequiredWithoutSsoProvidersNestedInput
+  user?: Prisma.UserUpdateOneWithoutEnterpriseSsoProvidersNestedInput
 }
 
 export type EnterpriseSsoProviderUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   organizationId?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   providerId?: Prisma.StringFieldUpdateOperationsInput | string
   issuer?: Prisma.StringFieldUpdateOperationsInput | string
   domain?: Prisma.StringFieldUpdateOperationsInput | string
@@ -319,6 +338,7 @@ export type EnterpriseSsoProviderUncheckedUpdateInput = {
 export type EnterpriseSsoProviderCreateManyInput = {
   id?: string
   organizationId: string
+  userId?: string | null
   providerId: string
   issuer: string
   domain: string
@@ -342,6 +362,7 @@ export type EnterpriseSsoProviderUpdateManyMutationInput = {
 export type EnterpriseSsoProviderUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   organizationId?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   providerId?: Prisma.StringFieldUpdateOperationsInput | string
   issuer?: Prisma.StringFieldUpdateOperationsInput | string
   domain?: Prisma.StringFieldUpdateOperationsInput | string
@@ -364,6 +385,7 @@ export type EnterpriseSsoProviderOrderByRelationAggregateInput = {
 export type EnterpriseSsoProviderCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   organizationId?: Prisma.SortOrder
+  userId?: Prisma.SortOrder
   providerId?: Prisma.SortOrder
   issuer?: Prisma.SortOrder
   domain?: Prisma.SortOrder
@@ -376,6 +398,7 @@ export type EnterpriseSsoProviderCountOrderByAggregateInput = {
 export type EnterpriseSsoProviderMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   organizationId?: Prisma.SortOrder
+  userId?: Prisma.SortOrder
   providerId?: Prisma.SortOrder
   issuer?: Prisma.SortOrder
   domain?: Prisma.SortOrder
@@ -386,11 +409,54 @@ export type EnterpriseSsoProviderMaxOrderByAggregateInput = {
 export type EnterpriseSsoProviderMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   organizationId?: Prisma.SortOrder
+  userId?: Prisma.SortOrder
   providerId?: Prisma.SortOrder
   issuer?: Prisma.SortOrder
   domain?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type EnterpriseSsoProviderCreateNestedManyWithoutUserInput = {
+  create?: Prisma.XOR<Prisma.EnterpriseSsoProviderCreateWithoutUserInput, Prisma.EnterpriseSsoProviderUncheckedCreateWithoutUserInput> | Prisma.EnterpriseSsoProviderCreateWithoutUserInput[] | Prisma.EnterpriseSsoProviderUncheckedCreateWithoutUserInput[]
+  connectOrCreate?: Prisma.EnterpriseSsoProviderCreateOrConnectWithoutUserInput | Prisma.EnterpriseSsoProviderCreateOrConnectWithoutUserInput[]
+  createMany?: Prisma.EnterpriseSsoProviderCreateManyUserInputEnvelope
+  connect?: Prisma.EnterpriseSsoProviderWhereUniqueInput | Prisma.EnterpriseSsoProviderWhereUniqueInput[]
+}
+
+export type EnterpriseSsoProviderUncheckedCreateNestedManyWithoutUserInput = {
+  create?: Prisma.XOR<Prisma.EnterpriseSsoProviderCreateWithoutUserInput, Prisma.EnterpriseSsoProviderUncheckedCreateWithoutUserInput> | Prisma.EnterpriseSsoProviderCreateWithoutUserInput[] | Prisma.EnterpriseSsoProviderUncheckedCreateWithoutUserInput[]
+  connectOrCreate?: Prisma.EnterpriseSsoProviderCreateOrConnectWithoutUserInput | Prisma.EnterpriseSsoProviderCreateOrConnectWithoutUserInput[]
+  createMany?: Prisma.EnterpriseSsoProviderCreateManyUserInputEnvelope
+  connect?: Prisma.EnterpriseSsoProviderWhereUniqueInput | Prisma.EnterpriseSsoProviderWhereUniqueInput[]
+}
+
+export type EnterpriseSsoProviderUpdateManyWithoutUserNestedInput = {
+  create?: Prisma.XOR<Prisma.EnterpriseSsoProviderCreateWithoutUserInput, Prisma.EnterpriseSsoProviderUncheckedCreateWithoutUserInput> | Prisma.EnterpriseSsoProviderCreateWithoutUserInput[] | Prisma.EnterpriseSsoProviderUncheckedCreateWithoutUserInput[]
+  connectOrCreate?: Prisma.EnterpriseSsoProviderCreateOrConnectWithoutUserInput | Prisma.EnterpriseSsoProviderCreateOrConnectWithoutUserInput[]
+  upsert?: Prisma.EnterpriseSsoProviderUpsertWithWhereUniqueWithoutUserInput | Prisma.EnterpriseSsoProviderUpsertWithWhereUniqueWithoutUserInput[]
+  createMany?: Prisma.EnterpriseSsoProviderCreateManyUserInputEnvelope
+  set?: Prisma.EnterpriseSsoProviderWhereUniqueInput | Prisma.EnterpriseSsoProviderWhereUniqueInput[]
+  disconnect?: Prisma.EnterpriseSsoProviderWhereUniqueInput | Prisma.EnterpriseSsoProviderWhereUniqueInput[]
+  delete?: Prisma.EnterpriseSsoProviderWhereUniqueInput | Prisma.EnterpriseSsoProviderWhereUniqueInput[]
+  connect?: Prisma.EnterpriseSsoProviderWhereUniqueInput | Prisma.EnterpriseSsoProviderWhereUniqueInput[]
+  update?: Prisma.EnterpriseSsoProviderUpdateWithWhereUniqueWithoutUserInput | Prisma.EnterpriseSsoProviderUpdateWithWhereUniqueWithoutUserInput[]
+  updateMany?: Prisma.EnterpriseSsoProviderUpdateManyWithWhereWithoutUserInput | Prisma.EnterpriseSsoProviderUpdateManyWithWhereWithoutUserInput[]
+  deleteMany?: Prisma.EnterpriseSsoProviderScalarWhereInput | Prisma.EnterpriseSsoProviderScalarWhereInput[]
+}
+
+export type EnterpriseSsoProviderUncheckedUpdateManyWithoutUserNestedInput = {
+  create?: Prisma.XOR<Prisma.EnterpriseSsoProviderCreateWithoutUserInput, Prisma.EnterpriseSsoProviderUncheckedCreateWithoutUserInput> | Prisma.EnterpriseSsoProviderCreateWithoutUserInput[] | Prisma.EnterpriseSsoProviderUncheckedCreateWithoutUserInput[]
+  connectOrCreate?: Prisma.EnterpriseSsoProviderCreateOrConnectWithoutUserInput | Prisma.EnterpriseSsoProviderCreateOrConnectWithoutUserInput[]
+  upsert?: Prisma.EnterpriseSsoProviderUpsertWithWhereUniqueWithoutUserInput | Prisma.EnterpriseSsoProviderUpsertWithWhereUniqueWithoutUserInput[]
+  createMany?: Prisma.EnterpriseSsoProviderCreateManyUserInputEnvelope
+  set?: Prisma.EnterpriseSsoProviderWhereUniqueInput | Prisma.EnterpriseSsoProviderWhereUniqueInput[]
+  disconnect?: Prisma.EnterpriseSsoProviderWhereUniqueInput | Prisma.EnterpriseSsoProviderWhereUniqueInput[]
+  delete?: Prisma.EnterpriseSsoProviderWhereUniqueInput | Prisma.EnterpriseSsoProviderWhereUniqueInput[]
+  connect?: Prisma.EnterpriseSsoProviderWhereUniqueInput | Prisma.EnterpriseSsoProviderWhereUniqueInput[]
+  update?: Prisma.EnterpriseSsoProviderUpdateWithWhereUniqueWithoutUserInput | Prisma.EnterpriseSsoProviderUpdateWithWhereUniqueWithoutUserInput[]
+  updateMany?: Prisma.EnterpriseSsoProviderUpdateManyWithWhereWithoutUserInput | Prisma.EnterpriseSsoProviderUpdateManyWithWhereWithoutUserInput[]
+  deleteMany?: Prisma.EnterpriseSsoProviderScalarWhereInput | Prisma.EnterpriseSsoProviderScalarWhereInput[]
 }
 
 export type EnterpriseSsoProviderCreateNestedManyWithoutOrganizationInput = {
@@ -435,8 +501,21 @@ export type EnterpriseSsoProviderUncheckedUpdateManyWithoutOrganizationNestedInp
   deleteMany?: Prisma.EnterpriseSsoProviderScalarWhereInput | Prisma.EnterpriseSsoProviderScalarWhereInput[]
 }
 
-export type EnterpriseSsoProviderCreateWithoutOrganizationInput = {
+export type EnterpriseSsoProviderCreateWithoutUserInput = {
   id?: string
+  providerId: string
+  issuer: string
+  domain: string
+  oidcConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  samlConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  organization: Prisma.OrganizationCreateNestedOneWithoutSsoProvidersInput
+}
+
+export type EnterpriseSsoProviderUncheckedCreateWithoutUserInput = {
+  id?: string
+  organizationId: string
   providerId: string
   issuer: string
   domain: string
@@ -446,8 +525,63 @@ export type EnterpriseSsoProviderCreateWithoutOrganizationInput = {
   updatedAt?: Date | string
 }
 
+export type EnterpriseSsoProviderCreateOrConnectWithoutUserInput = {
+  where: Prisma.EnterpriseSsoProviderWhereUniqueInput
+  create: Prisma.XOR<Prisma.EnterpriseSsoProviderCreateWithoutUserInput, Prisma.EnterpriseSsoProviderUncheckedCreateWithoutUserInput>
+}
+
+export type EnterpriseSsoProviderCreateManyUserInputEnvelope = {
+  data: Prisma.EnterpriseSsoProviderCreateManyUserInput | Prisma.EnterpriseSsoProviderCreateManyUserInput[]
+  skipDuplicates?: boolean
+}
+
+export type EnterpriseSsoProviderUpsertWithWhereUniqueWithoutUserInput = {
+  where: Prisma.EnterpriseSsoProviderWhereUniqueInput
+  update: Prisma.XOR<Prisma.EnterpriseSsoProviderUpdateWithoutUserInput, Prisma.EnterpriseSsoProviderUncheckedUpdateWithoutUserInput>
+  create: Prisma.XOR<Prisma.EnterpriseSsoProviderCreateWithoutUserInput, Prisma.EnterpriseSsoProviderUncheckedCreateWithoutUserInput>
+}
+
+export type EnterpriseSsoProviderUpdateWithWhereUniqueWithoutUserInput = {
+  where: Prisma.EnterpriseSsoProviderWhereUniqueInput
+  data: Prisma.XOR<Prisma.EnterpriseSsoProviderUpdateWithoutUserInput, Prisma.EnterpriseSsoProviderUncheckedUpdateWithoutUserInput>
+}
+
+export type EnterpriseSsoProviderUpdateManyWithWhereWithoutUserInput = {
+  where: Prisma.EnterpriseSsoProviderScalarWhereInput
+  data: Prisma.XOR<Prisma.EnterpriseSsoProviderUpdateManyMutationInput, Prisma.EnterpriseSsoProviderUncheckedUpdateManyWithoutUserInput>
+}
+
+export type EnterpriseSsoProviderScalarWhereInput = {
+  AND?: Prisma.EnterpriseSsoProviderScalarWhereInput | Prisma.EnterpriseSsoProviderScalarWhereInput[]
+  OR?: Prisma.EnterpriseSsoProviderScalarWhereInput[]
+  NOT?: Prisma.EnterpriseSsoProviderScalarWhereInput | Prisma.EnterpriseSsoProviderScalarWhereInput[]
+  id?: Prisma.StringFilter<"EnterpriseSsoProvider"> | string
+  organizationId?: Prisma.StringFilter<"EnterpriseSsoProvider"> | string
+  userId?: Prisma.StringNullableFilter<"EnterpriseSsoProvider"> | string | null
+  providerId?: Prisma.StringFilter<"EnterpriseSsoProvider"> | string
+  issuer?: Prisma.StringFilter<"EnterpriseSsoProvider"> | string
+  domain?: Prisma.StringFilter<"EnterpriseSsoProvider"> | string
+  oidcConfig?: Prisma.JsonNullableFilter<"EnterpriseSsoProvider">
+  samlConfig?: Prisma.JsonNullableFilter<"EnterpriseSsoProvider">
+  createdAt?: Prisma.DateTimeFilter<"EnterpriseSsoProvider"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"EnterpriseSsoProvider"> | Date | string
+}
+
+export type EnterpriseSsoProviderCreateWithoutOrganizationInput = {
+  id?: string
+  providerId: string
+  issuer: string
+  domain: string
+  oidcConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  samlConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user?: Prisma.UserCreateNestedOneWithoutEnterpriseSsoProvidersInput
+}
+
 export type EnterpriseSsoProviderUncheckedCreateWithoutOrganizationInput = {
   id?: string
+  userId?: string | null
   providerId: string
   issuer: string
   domain: string
@@ -483,23 +617,57 @@ export type EnterpriseSsoProviderUpdateManyWithWhereWithoutOrganizationInput = {
   data: Prisma.XOR<Prisma.EnterpriseSsoProviderUpdateManyMutationInput, Prisma.EnterpriseSsoProviderUncheckedUpdateManyWithoutOrganizationInput>
 }
 
-export type EnterpriseSsoProviderScalarWhereInput = {
-  AND?: Prisma.EnterpriseSsoProviderScalarWhereInput | Prisma.EnterpriseSsoProviderScalarWhereInput[]
-  OR?: Prisma.EnterpriseSsoProviderScalarWhereInput[]
-  NOT?: Prisma.EnterpriseSsoProviderScalarWhereInput | Prisma.EnterpriseSsoProviderScalarWhereInput[]
-  id?: Prisma.StringFilter<"EnterpriseSsoProvider"> | string
-  organizationId?: Prisma.StringFilter<"EnterpriseSsoProvider"> | string
-  providerId?: Prisma.StringFilter<"EnterpriseSsoProvider"> | string
-  issuer?: Prisma.StringFilter<"EnterpriseSsoProvider"> | string
-  domain?: Prisma.StringFilter<"EnterpriseSsoProvider"> | string
-  oidcConfig?: Prisma.JsonNullableFilter<"EnterpriseSsoProvider">
-  samlConfig?: Prisma.JsonNullableFilter<"EnterpriseSsoProvider">
-  createdAt?: Prisma.DateTimeFilter<"EnterpriseSsoProvider"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"EnterpriseSsoProvider"> | Date | string
+export type EnterpriseSsoProviderCreateManyUserInput = {
+  id?: string
+  organizationId: string
+  providerId: string
+  issuer: string
+  domain: string
+  oidcConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  samlConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type EnterpriseSsoProviderUpdateWithoutUserInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  providerId?: Prisma.StringFieldUpdateOperationsInput | string
+  issuer?: Prisma.StringFieldUpdateOperationsInput | string
+  domain?: Prisma.StringFieldUpdateOperationsInput | string
+  oidcConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  samlConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  organization?: Prisma.OrganizationUpdateOneRequiredWithoutSsoProvidersNestedInput
+}
+
+export type EnterpriseSsoProviderUncheckedUpdateWithoutUserInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
+  providerId?: Prisma.StringFieldUpdateOperationsInput | string
+  issuer?: Prisma.StringFieldUpdateOperationsInput | string
+  domain?: Prisma.StringFieldUpdateOperationsInput | string
+  oidcConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  samlConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type EnterpriseSsoProviderUncheckedUpdateManyWithoutUserInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
+  providerId?: Prisma.StringFieldUpdateOperationsInput | string
+  issuer?: Prisma.StringFieldUpdateOperationsInput | string
+  domain?: Prisma.StringFieldUpdateOperationsInput | string
+  oidcConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  samlConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type EnterpriseSsoProviderCreateManyOrganizationInput = {
   id?: string
+  userId?: string | null
   providerId: string
   issuer: string
   domain: string
@@ -518,10 +686,12 @@ export type EnterpriseSsoProviderUpdateWithoutOrganizationInput = {
   samlConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneWithoutEnterpriseSsoProvidersNestedInput
 }
 
 export type EnterpriseSsoProviderUncheckedUpdateWithoutOrganizationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   providerId?: Prisma.StringFieldUpdateOperationsInput | string
   issuer?: Prisma.StringFieldUpdateOperationsInput | string
   domain?: Prisma.StringFieldUpdateOperationsInput | string
@@ -533,6 +703,7 @@ export type EnterpriseSsoProviderUncheckedUpdateWithoutOrganizationInput = {
 
 export type EnterpriseSsoProviderUncheckedUpdateManyWithoutOrganizationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   providerId?: Prisma.StringFieldUpdateOperationsInput | string
   issuer?: Prisma.StringFieldUpdateOperationsInput | string
   domain?: Prisma.StringFieldUpdateOperationsInput | string
@@ -547,6 +718,7 @@ export type EnterpriseSsoProviderUncheckedUpdateManyWithoutOrganizationInput = {
 export type EnterpriseSsoProviderSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   organizationId?: boolean
+  userId?: boolean
   providerId?: boolean
   issuer?: boolean
   domain?: boolean
@@ -555,11 +727,13 @@ export type EnterpriseSsoProviderSelect<ExtArgs extends runtime.Types.Extensions
   createdAt?: boolean
   updatedAt?: boolean
   organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.EnterpriseSsoProvider$userArgs<ExtArgs>
 }, ExtArgs["result"]["enterpriseSsoProvider"]>
 
 export type EnterpriseSsoProviderSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   organizationId?: boolean
+  userId?: boolean
   providerId?: boolean
   issuer?: boolean
   domain?: boolean
@@ -568,11 +742,13 @@ export type EnterpriseSsoProviderSelectCreateManyAndReturn<ExtArgs extends runti
   createdAt?: boolean
   updatedAt?: boolean
   organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.EnterpriseSsoProvider$userArgs<ExtArgs>
 }, ExtArgs["result"]["enterpriseSsoProvider"]>
 
 export type EnterpriseSsoProviderSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   organizationId?: boolean
+  userId?: boolean
   providerId?: boolean
   issuer?: boolean
   domain?: boolean
@@ -581,11 +757,13 @@ export type EnterpriseSsoProviderSelectUpdateManyAndReturn<ExtArgs extends runti
   createdAt?: boolean
   updatedAt?: boolean
   organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.EnterpriseSsoProvider$userArgs<ExtArgs>
 }, ExtArgs["result"]["enterpriseSsoProvider"]>
 
 export type EnterpriseSsoProviderSelectScalar = {
   id?: boolean
   organizationId?: boolean
+  userId?: boolean
   providerId?: boolean
   issuer?: boolean
   domain?: boolean
@@ -595,25 +773,30 @@ export type EnterpriseSsoProviderSelectScalar = {
   updatedAt?: boolean
 }
 
-export type EnterpriseSsoProviderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "organizationId" | "providerId" | "issuer" | "domain" | "oidcConfig" | "samlConfig" | "createdAt" | "updatedAt", ExtArgs["result"]["enterpriseSsoProvider"]>
+export type EnterpriseSsoProviderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "organizationId" | "userId" | "providerId" | "issuer" | "domain" | "oidcConfig" | "samlConfig" | "createdAt" | "updatedAt", ExtArgs["result"]["enterpriseSsoProvider"]>
 export type EnterpriseSsoProviderInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.EnterpriseSsoProvider$userArgs<ExtArgs>
 }
 export type EnterpriseSsoProviderIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.EnterpriseSsoProvider$userArgs<ExtArgs>
 }
 export type EnterpriseSsoProviderIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.EnterpriseSsoProvider$userArgs<ExtArgs>
 }
 
 export type $EnterpriseSsoProviderPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "EnterpriseSsoProvider"
   objects: {
     organization: Prisma.$OrganizationPayload<ExtArgs>
+    user: Prisma.$UserPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     organizationId: string
+    userId: string | null
     providerId: string
     issuer: string
     domain: string
@@ -1016,6 +1199,7 @@ readonly fields: EnterpriseSsoProviderFieldRefs;
 export interface Prisma__EnterpriseSsoProviderClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   organization<T extends Prisma.OrganizationDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.OrganizationDefaultArgs<ExtArgs>>): Prisma.Prisma__OrganizationClient<runtime.Types.Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  user<T extends Prisma.EnterpriseSsoProvider$userArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EnterpriseSsoProvider$userArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1047,6 +1231,7 @@ export interface Prisma__EnterpriseSsoProviderClient<T, Null = never, ExtArgs ex
 export interface EnterpriseSsoProviderFieldRefs {
   readonly id: Prisma.FieldRef<"EnterpriseSsoProvider", 'String'>
   readonly organizationId: Prisma.FieldRef<"EnterpriseSsoProvider", 'String'>
+  readonly userId: Prisma.FieldRef<"EnterpriseSsoProvider", 'String'>
   readonly providerId: Prisma.FieldRef<"EnterpriseSsoProvider", 'String'>
   readonly issuer: Prisma.FieldRef<"EnterpriseSsoProvider", 'String'>
   readonly domain: Prisma.FieldRef<"EnterpriseSsoProvider", 'String'>
@@ -1452,6 +1637,25 @@ export type EnterpriseSsoProviderDeleteManyArgs<ExtArgs extends runtime.Types.Ex
    * Limit how many EnterpriseSsoProviders to delete.
    */
   limit?: number
+}
+
+/**
+ * EnterpriseSsoProvider.user
+ */
+export type EnterpriseSsoProvider$userArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the User
+   */
+  select?: Prisma.UserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the User
+   */
+  omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
 }
 
 /**

@@ -14,6 +14,7 @@ import {
 } from "@elluminar/domain-commerce";
 import { aiMentorshipRouter } from "./routes/ai-mentorship";
 import { identityRouter } from "./routes/identity";
+import { storageRouter } from "./routes/storage";
 import { webhooksRouter } from "./routes/webhooks";
 
 const QuoteRequestSchema = z.object({
@@ -30,6 +31,7 @@ const QuoteRequestSchema = z.object({
 export const apiApp = new Hono()
   .basePath("/api/v2")
   .route("/identity", identityRouter)
+  .route("/storage", storageRouter)
   .route("/webhooks", webhooksRouter)
   .route("/ai-mentorship", aiMentorshipRouter)
   .get("/health", (c) => {

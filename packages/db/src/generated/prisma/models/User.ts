@@ -221,6 +221,7 @@ export type UserWhereInput = {
   reviewsGiven?: Prisma.ProjectReviewListRelationFilter
   aiWallet?: Prisma.XOR<Prisma.AiWalletNullableScalarRelationFilter, Prisma.AiWalletWhereInput> | null
   credentials?: Prisma.CredentialListRelationFilter
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -247,6 +248,7 @@ export type UserOrderByWithRelationInput = {
   reviewsGiven?: Prisma.ProjectReviewOrderByRelationAggregateInput
   aiWallet?: Prisma.AiWalletOrderByWithRelationInput
   credentials?: Prisma.CredentialOrderByRelationAggregateInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -276,6 +278,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   reviewsGiven?: Prisma.ProjectReviewListRelationFilter
   aiWallet?: Prisma.XOR<Prisma.AiWalletNullableScalarRelationFilter, Prisma.AiWalletWhereInput> | null
   credentials?: Prisma.CredentialListRelationFilter
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -330,6 +333,7 @@ export type UserCreateInput = {
   reviewsGiven?: Prisma.ProjectReviewCreateNestedManyWithoutReviewerInput
   aiWallet?: Prisma.AiWalletCreateNestedOneWithoutUserInput
   credentials?: Prisma.CredentialCreateNestedManyWithoutUserInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -356,6 +360,7 @@ export type UserUncheckedCreateInput = {
   reviewsGiven?: Prisma.ProjectReviewUncheckedCreateNestedManyWithoutReviewerInput
   aiWallet?: Prisma.AiWalletUncheckedCreateNestedOneWithoutUserInput
   credentials?: Prisma.CredentialUncheckedCreateNestedManyWithoutUserInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -382,6 +387,7 @@ export type UserUpdateInput = {
   reviewsGiven?: Prisma.ProjectReviewUpdateManyWithoutReviewerNestedInput
   aiWallet?: Prisma.AiWalletUpdateOneWithoutUserNestedInput
   credentials?: Prisma.CredentialUpdateManyWithoutUserNestedInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -408,6 +414,7 @@ export type UserUncheckedUpdateInput = {
   reviewsGiven?: Prisma.ProjectReviewUncheckedUpdateManyWithoutReviewerNestedInput
   aiWallet?: Prisma.AiWalletUncheckedUpdateOneWithoutUserNestedInput
   credentials?: Prisma.CredentialUncheckedUpdateManyWithoutUserNestedInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -479,6 +486,11 @@ export type UserMinOrderByAggregateInput = {
 export type UserScalarRelationFilter = {
   is?: Prisma.UserWhereInput
   isNot?: Prisma.UserWhereInput
+}
+
+export type UserNullableScalarRelationFilter = {
+  is?: Prisma.UserWhereInput | null
+  isNot?: Prisma.UserWhereInput | null
 }
 
 export type StringFieldUpdateOperationsInput = {
@@ -555,6 +567,22 @@ export type UserUpdateOneRequiredWithoutMembershipsNestedInput = {
   upsert?: Prisma.UserUpsertWithoutMembershipsInput
   connect?: Prisma.UserWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutMembershipsInput, Prisma.UserUpdateWithoutMembershipsInput>, Prisma.UserUncheckedUpdateWithoutMembershipsInput>
+}
+
+export type UserCreateNestedOneWithoutEnterpriseSsoProvidersInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutEnterpriseSsoProvidersInput, Prisma.UserUncheckedCreateWithoutEnterpriseSsoProvidersInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutEnterpriseSsoProvidersInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutEnterpriseSsoProvidersNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutEnterpriseSsoProvidersInput, Prisma.UserUncheckedCreateWithoutEnterpriseSsoProvidersInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutEnterpriseSsoProvidersInput
+  upsert?: Prisma.UserUpsertWithoutEnterpriseSsoProvidersInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutEnterpriseSsoProvidersInput, Prisma.UserUpdateWithoutEnterpriseSsoProvidersInput>, Prisma.UserUncheckedUpdateWithoutEnterpriseSsoProvidersInput>
 }
 
 export type UserCreateNestedOneWithoutAuthoredCoursesInput = {
@@ -734,6 +762,7 @@ export type UserCreateWithoutSessionsInput = {
   reviewsGiven?: Prisma.ProjectReviewCreateNestedManyWithoutReviewerInput
   aiWallet?: Prisma.AiWalletCreateNestedOneWithoutUserInput
   credentials?: Prisma.CredentialCreateNestedManyWithoutUserInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSessionsInput = {
@@ -759,6 +788,7 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   reviewsGiven?: Prisma.ProjectReviewUncheckedCreateNestedManyWithoutReviewerInput
   aiWallet?: Prisma.AiWalletUncheckedCreateNestedOneWithoutUserInput
   credentials?: Prisma.CredentialUncheckedCreateNestedManyWithoutUserInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSessionsInput = {
@@ -800,6 +830,7 @@ export type UserUpdateWithoutSessionsInput = {
   reviewsGiven?: Prisma.ProjectReviewUpdateManyWithoutReviewerNestedInput
   aiWallet?: Prisma.AiWalletUpdateOneWithoutUserNestedInput
   credentials?: Prisma.CredentialUpdateManyWithoutUserNestedInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -825,6 +856,7 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   reviewsGiven?: Prisma.ProjectReviewUncheckedUpdateManyWithoutReviewerNestedInput
   aiWallet?: Prisma.AiWalletUncheckedUpdateOneWithoutUserNestedInput
   credentials?: Prisma.CredentialUncheckedUpdateManyWithoutUserNestedInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAccountsInput = {
@@ -850,6 +882,7 @@ export type UserCreateWithoutAccountsInput = {
   reviewsGiven?: Prisma.ProjectReviewCreateNestedManyWithoutReviewerInput
   aiWallet?: Prisma.AiWalletCreateNestedOneWithoutUserInput
   credentials?: Prisma.CredentialCreateNestedManyWithoutUserInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAccountsInput = {
@@ -875,6 +908,7 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   reviewsGiven?: Prisma.ProjectReviewUncheckedCreateNestedManyWithoutReviewerInput
   aiWallet?: Prisma.AiWalletUncheckedCreateNestedOneWithoutUserInput
   credentials?: Prisma.CredentialUncheckedCreateNestedManyWithoutUserInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAccountsInput = {
@@ -916,6 +950,7 @@ export type UserUpdateWithoutAccountsInput = {
   reviewsGiven?: Prisma.ProjectReviewUpdateManyWithoutReviewerNestedInput
   aiWallet?: Prisma.AiWalletUpdateOneWithoutUserNestedInput
   credentials?: Prisma.CredentialUpdateManyWithoutUserNestedInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -941,6 +976,7 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   reviewsGiven?: Prisma.ProjectReviewUncheckedUpdateManyWithoutReviewerNestedInput
   aiWallet?: Prisma.AiWalletUncheckedUpdateOneWithoutUserNestedInput
   credentials?: Prisma.CredentialUncheckedUpdateManyWithoutUserNestedInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutTwoFactorInput = {
@@ -966,6 +1002,7 @@ export type UserCreateWithoutTwoFactorInput = {
   reviewsGiven?: Prisma.ProjectReviewCreateNestedManyWithoutReviewerInput
   aiWallet?: Prisma.AiWalletCreateNestedOneWithoutUserInput
   credentials?: Prisma.CredentialCreateNestedManyWithoutUserInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutTwoFactorInput = {
@@ -991,6 +1028,7 @@ export type UserUncheckedCreateWithoutTwoFactorInput = {
   reviewsGiven?: Prisma.ProjectReviewUncheckedCreateNestedManyWithoutReviewerInput
   aiWallet?: Prisma.AiWalletUncheckedCreateNestedOneWithoutUserInput
   credentials?: Prisma.CredentialUncheckedCreateNestedManyWithoutUserInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutTwoFactorInput = {
@@ -1032,6 +1070,7 @@ export type UserUpdateWithoutTwoFactorInput = {
   reviewsGiven?: Prisma.ProjectReviewUpdateManyWithoutReviewerNestedInput
   aiWallet?: Prisma.AiWalletUpdateOneWithoutUserNestedInput
   credentials?: Prisma.CredentialUpdateManyWithoutUserNestedInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutTwoFactorInput = {
@@ -1057,6 +1096,7 @@ export type UserUncheckedUpdateWithoutTwoFactorInput = {
   reviewsGiven?: Prisma.ProjectReviewUncheckedUpdateManyWithoutReviewerNestedInput
   aiWallet?: Prisma.AiWalletUncheckedUpdateOneWithoutUserNestedInput
   credentials?: Prisma.CredentialUncheckedUpdateManyWithoutUserNestedInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutMembershipsInput = {
@@ -1082,6 +1122,7 @@ export type UserCreateWithoutMembershipsInput = {
   reviewsGiven?: Prisma.ProjectReviewCreateNestedManyWithoutReviewerInput
   aiWallet?: Prisma.AiWalletCreateNestedOneWithoutUserInput
   credentials?: Prisma.CredentialCreateNestedManyWithoutUserInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutMembershipsInput = {
@@ -1107,6 +1148,7 @@ export type UserUncheckedCreateWithoutMembershipsInput = {
   reviewsGiven?: Prisma.ProjectReviewUncheckedCreateNestedManyWithoutReviewerInput
   aiWallet?: Prisma.AiWalletUncheckedCreateNestedOneWithoutUserInput
   credentials?: Prisma.CredentialUncheckedCreateNestedManyWithoutUserInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutMembershipsInput = {
@@ -1148,6 +1190,7 @@ export type UserUpdateWithoutMembershipsInput = {
   reviewsGiven?: Prisma.ProjectReviewUpdateManyWithoutReviewerNestedInput
   aiWallet?: Prisma.AiWalletUpdateOneWithoutUserNestedInput
   credentials?: Prisma.CredentialUpdateManyWithoutUserNestedInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutMembershipsInput = {
@@ -1162,6 +1205,127 @@ export type UserUncheckedUpdateWithoutMembershipsInput = {
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   twoFactor?: Prisma.TwoFactorUncheckedUpdateOneWithoutUserNestedInput
+  authoredCourses?: Prisma.CourseUncheckedUpdateManyWithoutAuthorNestedInput
+  authoredProjects?: Prisma.ProjectUncheckedUpdateManyWithoutAuthorNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutBuyerNestedInput
+  enrollments?: Prisma.EnrollmentUncheckedUpdateManyWithoutUserNestedInput
+  licenseSeats?: Prisma.LicenseSeatUncheckedUpdateManyWithoutUserNestedInput
+  projectInstances?: Prisma.ProjectInstanceUncheckedUpdateManyWithoutUserNestedInput
+  mentorProfile?: Prisma.MentorProfileUncheckedUpdateOneWithoutUserNestedInput
+  mentorAssignments?: Prisma.MentorAssignmentUncheckedUpdateManyWithoutMentorNestedInput
+  reviewsGiven?: Prisma.ProjectReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  aiWallet?: Prisma.AiWalletUncheckedUpdateOneWithoutUserNestedInput
+  credentials?: Prisma.CredentialUncheckedUpdateManyWithoutUserNestedInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutEnterpriseSsoProvidersInput = {
+  id?: string
+  email: string
+  emailVerified?: boolean
+  name: string
+  image?: string | null
+  role?: $Enums.PlatformRole
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  twoFactor?: Prisma.TwoFactorCreateNestedOneWithoutUserInput
+  memberships?: Prisma.MemberCreateNestedManyWithoutUserInput
+  authoredCourses?: Prisma.CourseCreateNestedManyWithoutAuthorInput
+  authoredProjects?: Prisma.ProjectCreateNestedManyWithoutAuthorInput
+  orders?: Prisma.OrderCreateNestedManyWithoutBuyerInput
+  enrollments?: Prisma.EnrollmentCreateNestedManyWithoutUserInput
+  licenseSeats?: Prisma.LicenseSeatCreateNestedManyWithoutUserInput
+  projectInstances?: Prisma.ProjectInstanceCreateNestedManyWithoutUserInput
+  mentorProfile?: Prisma.MentorProfileCreateNestedOneWithoutUserInput
+  mentorAssignments?: Prisma.MentorAssignmentCreateNestedManyWithoutMentorInput
+  reviewsGiven?: Prisma.ProjectReviewCreateNestedManyWithoutReviewerInput
+  aiWallet?: Prisma.AiWalletCreateNestedOneWithoutUserInput
+  credentials?: Prisma.CredentialCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutEnterpriseSsoProvidersInput = {
+  id?: string
+  email: string
+  emailVerified?: boolean
+  name: string
+  image?: string | null
+  role?: $Enums.PlatformRole
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  twoFactor?: Prisma.TwoFactorUncheckedCreateNestedOneWithoutUserInput
+  memberships?: Prisma.MemberUncheckedCreateNestedManyWithoutUserInput
+  authoredCourses?: Prisma.CourseUncheckedCreateNestedManyWithoutAuthorInput
+  authoredProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutAuthorInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutBuyerInput
+  enrollments?: Prisma.EnrollmentUncheckedCreateNestedManyWithoutUserInput
+  licenseSeats?: Prisma.LicenseSeatUncheckedCreateNestedManyWithoutUserInput
+  projectInstances?: Prisma.ProjectInstanceUncheckedCreateNestedManyWithoutUserInput
+  mentorProfile?: Prisma.MentorProfileUncheckedCreateNestedOneWithoutUserInput
+  mentorAssignments?: Prisma.MentorAssignmentUncheckedCreateNestedManyWithoutMentorInput
+  reviewsGiven?: Prisma.ProjectReviewUncheckedCreateNestedManyWithoutReviewerInput
+  aiWallet?: Prisma.AiWalletUncheckedCreateNestedOneWithoutUserInput
+  credentials?: Prisma.CredentialUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutEnterpriseSsoProvidersInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutEnterpriseSsoProvidersInput, Prisma.UserUncheckedCreateWithoutEnterpriseSsoProvidersInput>
+}
+
+export type UserUpsertWithoutEnterpriseSsoProvidersInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutEnterpriseSsoProvidersInput, Prisma.UserUncheckedUpdateWithoutEnterpriseSsoProvidersInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutEnterpriseSsoProvidersInput, Prisma.UserUncheckedCreateWithoutEnterpriseSsoProvidersInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutEnterpriseSsoProvidersInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutEnterpriseSsoProvidersInput, Prisma.UserUncheckedUpdateWithoutEnterpriseSsoProvidersInput>
+}
+
+export type UserUpdateWithoutEnterpriseSsoProvidersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumPlatformRoleFieldUpdateOperationsInput | $Enums.PlatformRole
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  twoFactor?: Prisma.TwoFactorUpdateOneWithoutUserNestedInput
+  memberships?: Prisma.MemberUpdateManyWithoutUserNestedInput
+  authoredCourses?: Prisma.CourseUpdateManyWithoutAuthorNestedInput
+  authoredProjects?: Prisma.ProjectUpdateManyWithoutAuthorNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutBuyerNestedInput
+  enrollments?: Prisma.EnrollmentUpdateManyWithoutUserNestedInput
+  licenseSeats?: Prisma.LicenseSeatUpdateManyWithoutUserNestedInput
+  projectInstances?: Prisma.ProjectInstanceUpdateManyWithoutUserNestedInput
+  mentorProfile?: Prisma.MentorProfileUpdateOneWithoutUserNestedInput
+  mentorAssignments?: Prisma.MentorAssignmentUpdateManyWithoutMentorNestedInput
+  reviewsGiven?: Prisma.ProjectReviewUpdateManyWithoutReviewerNestedInput
+  aiWallet?: Prisma.AiWalletUpdateOneWithoutUserNestedInput
+  credentials?: Prisma.CredentialUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutEnterpriseSsoProvidersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumPlatformRoleFieldUpdateOperationsInput | $Enums.PlatformRole
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  twoFactor?: Prisma.TwoFactorUncheckedUpdateOneWithoutUserNestedInput
+  memberships?: Prisma.MemberUncheckedUpdateManyWithoutUserNestedInput
   authoredCourses?: Prisma.CourseUncheckedUpdateManyWithoutAuthorNestedInput
   authoredProjects?: Prisma.ProjectUncheckedUpdateManyWithoutAuthorNestedInput
   orders?: Prisma.OrderUncheckedUpdateManyWithoutBuyerNestedInput
@@ -1198,6 +1362,7 @@ export type UserCreateWithoutAuthoredCoursesInput = {
   reviewsGiven?: Prisma.ProjectReviewCreateNestedManyWithoutReviewerInput
   aiWallet?: Prisma.AiWalletCreateNestedOneWithoutUserInput
   credentials?: Prisma.CredentialCreateNestedManyWithoutUserInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAuthoredCoursesInput = {
@@ -1223,6 +1388,7 @@ export type UserUncheckedCreateWithoutAuthoredCoursesInput = {
   reviewsGiven?: Prisma.ProjectReviewUncheckedCreateNestedManyWithoutReviewerInput
   aiWallet?: Prisma.AiWalletUncheckedCreateNestedOneWithoutUserInput
   credentials?: Prisma.CredentialUncheckedCreateNestedManyWithoutUserInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAuthoredCoursesInput = {
@@ -1264,6 +1430,7 @@ export type UserUpdateWithoutAuthoredCoursesInput = {
   reviewsGiven?: Prisma.ProjectReviewUpdateManyWithoutReviewerNestedInput
   aiWallet?: Prisma.AiWalletUpdateOneWithoutUserNestedInput
   credentials?: Prisma.CredentialUpdateManyWithoutUserNestedInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAuthoredCoursesInput = {
@@ -1289,6 +1456,7 @@ export type UserUncheckedUpdateWithoutAuthoredCoursesInput = {
   reviewsGiven?: Prisma.ProjectReviewUncheckedUpdateManyWithoutReviewerNestedInput
   aiWallet?: Prisma.AiWalletUncheckedUpdateOneWithoutUserNestedInput
   credentials?: Prisma.CredentialUncheckedUpdateManyWithoutUserNestedInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAuthoredProjectsInput = {
@@ -1314,6 +1482,7 @@ export type UserCreateWithoutAuthoredProjectsInput = {
   reviewsGiven?: Prisma.ProjectReviewCreateNestedManyWithoutReviewerInput
   aiWallet?: Prisma.AiWalletCreateNestedOneWithoutUserInput
   credentials?: Prisma.CredentialCreateNestedManyWithoutUserInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAuthoredProjectsInput = {
@@ -1339,6 +1508,7 @@ export type UserUncheckedCreateWithoutAuthoredProjectsInput = {
   reviewsGiven?: Prisma.ProjectReviewUncheckedCreateNestedManyWithoutReviewerInput
   aiWallet?: Prisma.AiWalletUncheckedCreateNestedOneWithoutUserInput
   credentials?: Prisma.CredentialUncheckedCreateNestedManyWithoutUserInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAuthoredProjectsInput = {
@@ -1380,6 +1550,7 @@ export type UserUpdateWithoutAuthoredProjectsInput = {
   reviewsGiven?: Prisma.ProjectReviewUpdateManyWithoutReviewerNestedInput
   aiWallet?: Prisma.AiWalletUpdateOneWithoutUserNestedInput
   credentials?: Prisma.CredentialUpdateManyWithoutUserNestedInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAuthoredProjectsInput = {
@@ -1405,6 +1576,7 @@ export type UserUncheckedUpdateWithoutAuthoredProjectsInput = {
   reviewsGiven?: Prisma.ProjectReviewUncheckedUpdateManyWithoutReviewerNestedInput
   aiWallet?: Prisma.AiWalletUncheckedUpdateOneWithoutUserNestedInput
   credentials?: Prisma.CredentialUncheckedUpdateManyWithoutUserNestedInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutOrdersInput = {
@@ -1430,6 +1602,7 @@ export type UserCreateWithoutOrdersInput = {
   reviewsGiven?: Prisma.ProjectReviewCreateNestedManyWithoutReviewerInput
   aiWallet?: Prisma.AiWalletCreateNestedOneWithoutUserInput
   credentials?: Prisma.CredentialCreateNestedManyWithoutUserInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutOrdersInput = {
@@ -1455,6 +1628,7 @@ export type UserUncheckedCreateWithoutOrdersInput = {
   reviewsGiven?: Prisma.ProjectReviewUncheckedCreateNestedManyWithoutReviewerInput
   aiWallet?: Prisma.AiWalletUncheckedCreateNestedOneWithoutUserInput
   credentials?: Prisma.CredentialUncheckedCreateNestedManyWithoutUserInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutOrdersInput = {
@@ -1496,6 +1670,7 @@ export type UserUpdateWithoutOrdersInput = {
   reviewsGiven?: Prisma.ProjectReviewUpdateManyWithoutReviewerNestedInput
   aiWallet?: Prisma.AiWalletUpdateOneWithoutUserNestedInput
   credentials?: Prisma.CredentialUpdateManyWithoutUserNestedInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutOrdersInput = {
@@ -1521,6 +1696,7 @@ export type UserUncheckedUpdateWithoutOrdersInput = {
   reviewsGiven?: Prisma.ProjectReviewUncheckedUpdateManyWithoutReviewerNestedInput
   aiWallet?: Prisma.AiWalletUncheckedUpdateOneWithoutUserNestedInput
   credentials?: Prisma.CredentialUncheckedUpdateManyWithoutUserNestedInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutEnrollmentsInput = {
@@ -1546,6 +1722,7 @@ export type UserCreateWithoutEnrollmentsInput = {
   reviewsGiven?: Prisma.ProjectReviewCreateNestedManyWithoutReviewerInput
   aiWallet?: Prisma.AiWalletCreateNestedOneWithoutUserInput
   credentials?: Prisma.CredentialCreateNestedManyWithoutUserInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutEnrollmentsInput = {
@@ -1571,6 +1748,7 @@ export type UserUncheckedCreateWithoutEnrollmentsInput = {
   reviewsGiven?: Prisma.ProjectReviewUncheckedCreateNestedManyWithoutReviewerInput
   aiWallet?: Prisma.AiWalletUncheckedCreateNestedOneWithoutUserInput
   credentials?: Prisma.CredentialUncheckedCreateNestedManyWithoutUserInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutEnrollmentsInput = {
@@ -1612,6 +1790,7 @@ export type UserUpdateWithoutEnrollmentsInput = {
   reviewsGiven?: Prisma.ProjectReviewUpdateManyWithoutReviewerNestedInput
   aiWallet?: Prisma.AiWalletUpdateOneWithoutUserNestedInput
   credentials?: Prisma.CredentialUpdateManyWithoutUserNestedInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEnrollmentsInput = {
@@ -1637,6 +1816,7 @@ export type UserUncheckedUpdateWithoutEnrollmentsInput = {
   reviewsGiven?: Prisma.ProjectReviewUncheckedUpdateManyWithoutReviewerNestedInput
   aiWallet?: Prisma.AiWalletUncheckedUpdateOneWithoutUserNestedInput
   credentials?: Prisma.CredentialUncheckedUpdateManyWithoutUserNestedInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutLicenseSeatsInput = {
@@ -1662,6 +1842,7 @@ export type UserCreateWithoutLicenseSeatsInput = {
   reviewsGiven?: Prisma.ProjectReviewCreateNestedManyWithoutReviewerInput
   aiWallet?: Prisma.AiWalletCreateNestedOneWithoutUserInput
   credentials?: Prisma.CredentialCreateNestedManyWithoutUserInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutLicenseSeatsInput = {
@@ -1687,6 +1868,7 @@ export type UserUncheckedCreateWithoutLicenseSeatsInput = {
   reviewsGiven?: Prisma.ProjectReviewUncheckedCreateNestedManyWithoutReviewerInput
   aiWallet?: Prisma.AiWalletUncheckedCreateNestedOneWithoutUserInput
   credentials?: Prisma.CredentialUncheckedCreateNestedManyWithoutUserInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutLicenseSeatsInput = {
@@ -1728,6 +1910,7 @@ export type UserUpdateWithoutLicenseSeatsInput = {
   reviewsGiven?: Prisma.ProjectReviewUpdateManyWithoutReviewerNestedInput
   aiWallet?: Prisma.AiWalletUpdateOneWithoutUserNestedInput
   credentials?: Prisma.CredentialUpdateManyWithoutUserNestedInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLicenseSeatsInput = {
@@ -1753,6 +1936,7 @@ export type UserUncheckedUpdateWithoutLicenseSeatsInput = {
   reviewsGiven?: Prisma.ProjectReviewUncheckedUpdateManyWithoutReviewerNestedInput
   aiWallet?: Prisma.AiWalletUncheckedUpdateOneWithoutUserNestedInput
   credentials?: Prisma.CredentialUncheckedUpdateManyWithoutUserNestedInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutProjectInstancesInput = {
@@ -1778,6 +1962,7 @@ export type UserCreateWithoutProjectInstancesInput = {
   reviewsGiven?: Prisma.ProjectReviewCreateNestedManyWithoutReviewerInput
   aiWallet?: Prisma.AiWalletCreateNestedOneWithoutUserInput
   credentials?: Prisma.CredentialCreateNestedManyWithoutUserInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutProjectInstancesInput = {
@@ -1803,6 +1988,7 @@ export type UserUncheckedCreateWithoutProjectInstancesInput = {
   reviewsGiven?: Prisma.ProjectReviewUncheckedCreateNestedManyWithoutReviewerInput
   aiWallet?: Prisma.AiWalletUncheckedCreateNestedOneWithoutUserInput
   credentials?: Prisma.CredentialUncheckedCreateNestedManyWithoutUserInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutProjectInstancesInput = {
@@ -1844,6 +2030,7 @@ export type UserUpdateWithoutProjectInstancesInput = {
   reviewsGiven?: Prisma.ProjectReviewUpdateManyWithoutReviewerNestedInput
   aiWallet?: Prisma.AiWalletUpdateOneWithoutUserNestedInput
   credentials?: Prisma.CredentialUpdateManyWithoutUserNestedInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutProjectInstancesInput = {
@@ -1869,6 +2056,7 @@ export type UserUncheckedUpdateWithoutProjectInstancesInput = {
   reviewsGiven?: Prisma.ProjectReviewUncheckedUpdateManyWithoutReviewerNestedInput
   aiWallet?: Prisma.AiWalletUncheckedUpdateOneWithoutUserNestedInput
   credentials?: Prisma.CredentialUncheckedUpdateManyWithoutUserNestedInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutMentorProfileInput = {
@@ -1894,6 +2082,7 @@ export type UserCreateWithoutMentorProfileInput = {
   reviewsGiven?: Prisma.ProjectReviewCreateNestedManyWithoutReviewerInput
   aiWallet?: Prisma.AiWalletCreateNestedOneWithoutUserInput
   credentials?: Prisma.CredentialCreateNestedManyWithoutUserInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutMentorProfileInput = {
@@ -1919,6 +2108,7 @@ export type UserUncheckedCreateWithoutMentorProfileInput = {
   reviewsGiven?: Prisma.ProjectReviewUncheckedCreateNestedManyWithoutReviewerInput
   aiWallet?: Prisma.AiWalletUncheckedCreateNestedOneWithoutUserInput
   credentials?: Prisma.CredentialUncheckedCreateNestedManyWithoutUserInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutMentorProfileInput = {
@@ -1960,6 +2150,7 @@ export type UserUpdateWithoutMentorProfileInput = {
   reviewsGiven?: Prisma.ProjectReviewUpdateManyWithoutReviewerNestedInput
   aiWallet?: Prisma.AiWalletUpdateOneWithoutUserNestedInput
   credentials?: Prisma.CredentialUpdateManyWithoutUserNestedInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutMentorProfileInput = {
@@ -1985,6 +2176,7 @@ export type UserUncheckedUpdateWithoutMentorProfileInput = {
   reviewsGiven?: Prisma.ProjectReviewUncheckedUpdateManyWithoutReviewerNestedInput
   aiWallet?: Prisma.AiWalletUncheckedUpdateOneWithoutUserNestedInput
   credentials?: Prisma.CredentialUncheckedUpdateManyWithoutUserNestedInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutMentorAssignmentsInput = {
@@ -2010,6 +2202,7 @@ export type UserCreateWithoutMentorAssignmentsInput = {
   reviewsGiven?: Prisma.ProjectReviewCreateNestedManyWithoutReviewerInput
   aiWallet?: Prisma.AiWalletCreateNestedOneWithoutUserInput
   credentials?: Prisma.CredentialCreateNestedManyWithoutUserInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutMentorAssignmentsInput = {
@@ -2035,6 +2228,7 @@ export type UserUncheckedCreateWithoutMentorAssignmentsInput = {
   reviewsGiven?: Prisma.ProjectReviewUncheckedCreateNestedManyWithoutReviewerInput
   aiWallet?: Prisma.AiWalletUncheckedCreateNestedOneWithoutUserInput
   credentials?: Prisma.CredentialUncheckedCreateNestedManyWithoutUserInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutMentorAssignmentsInput = {
@@ -2076,6 +2270,7 @@ export type UserUpdateWithoutMentorAssignmentsInput = {
   reviewsGiven?: Prisma.ProjectReviewUpdateManyWithoutReviewerNestedInput
   aiWallet?: Prisma.AiWalletUpdateOneWithoutUserNestedInput
   credentials?: Prisma.CredentialUpdateManyWithoutUserNestedInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutMentorAssignmentsInput = {
@@ -2101,6 +2296,7 @@ export type UserUncheckedUpdateWithoutMentorAssignmentsInput = {
   reviewsGiven?: Prisma.ProjectReviewUncheckedUpdateManyWithoutReviewerNestedInput
   aiWallet?: Prisma.AiWalletUncheckedUpdateOneWithoutUserNestedInput
   credentials?: Prisma.CredentialUncheckedUpdateManyWithoutUserNestedInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutReviewsGivenInput = {
@@ -2126,6 +2322,7 @@ export type UserCreateWithoutReviewsGivenInput = {
   mentorAssignments?: Prisma.MentorAssignmentCreateNestedManyWithoutMentorInput
   aiWallet?: Prisma.AiWalletCreateNestedOneWithoutUserInput
   credentials?: Prisma.CredentialCreateNestedManyWithoutUserInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutReviewsGivenInput = {
@@ -2151,6 +2348,7 @@ export type UserUncheckedCreateWithoutReviewsGivenInput = {
   mentorAssignments?: Prisma.MentorAssignmentUncheckedCreateNestedManyWithoutMentorInput
   aiWallet?: Prisma.AiWalletUncheckedCreateNestedOneWithoutUserInput
   credentials?: Prisma.CredentialUncheckedCreateNestedManyWithoutUserInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutReviewsGivenInput = {
@@ -2192,6 +2390,7 @@ export type UserUpdateWithoutReviewsGivenInput = {
   mentorAssignments?: Prisma.MentorAssignmentUpdateManyWithoutMentorNestedInput
   aiWallet?: Prisma.AiWalletUpdateOneWithoutUserNestedInput
   credentials?: Prisma.CredentialUpdateManyWithoutUserNestedInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReviewsGivenInput = {
@@ -2217,6 +2416,7 @@ export type UserUncheckedUpdateWithoutReviewsGivenInput = {
   mentorAssignments?: Prisma.MentorAssignmentUncheckedUpdateManyWithoutMentorNestedInput
   aiWallet?: Prisma.AiWalletUncheckedUpdateOneWithoutUserNestedInput
   credentials?: Prisma.CredentialUncheckedUpdateManyWithoutUserNestedInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAiWalletInput = {
@@ -2242,6 +2442,7 @@ export type UserCreateWithoutAiWalletInput = {
   mentorAssignments?: Prisma.MentorAssignmentCreateNestedManyWithoutMentorInput
   reviewsGiven?: Prisma.ProjectReviewCreateNestedManyWithoutReviewerInput
   credentials?: Prisma.CredentialCreateNestedManyWithoutUserInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAiWalletInput = {
@@ -2267,6 +2468,7 @@ export type UserUncheckedCreateWithoutAiWalletInput = {
   mentorAssignments?: Prisma.MentorAssignmentUncheckedCreateNestedManyWithoutMentorInput
   reviewsGiven?: Prisma.ProjectReviewUncheckedCreateNestedManyWithoutReviewerInput
   credentials?: Prisma.CredentialUncheckedCreateNestedManyWithoutUserInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAiWalletInput = {
@@ -2308,6 +2510,7 @@ export type UserUpdateWithoutAiWalletInput = {
   mentorAssignments?: Prisma.MentorAssignmentUpdateManyWithoutMentorNestedInput
   reviewsGiven?: Prisma.ProjectReviewUpdateManyWithoutReviewerNestedInput
   credentials?: Prisma.CredentialUpdateManyWithoutUserNestedInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAiWalletInput = {
@@ -2333,6 +2536,7 @@ export type UserUncheckedUpdateWithoutAiWalletInput = {
   mentorAssignments?: Prisma.MentorAssignmentUncheckedUpdateManyWithoutMentorNestedInput
   reviewsGiven?: Prisma.ProjectReviewUncheckedUpdateManyWithoutReviewerNestedInput
   credentials?: Prisma.CredentialUncheckedUpdateManyWithoutUserNestedInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutCredentialsInput = {
@@ -2358,6 +2562,7 @@ export type UserCreateWithoutCredentialsInput = {
   mentorAssignments?: Prisma.MentorAssignmentCreateNestedManyWithoutMentorInput
   reviewsGiven?: Prisma.ProjectReviewCreateNestedManyWithoutReviewerInput
   aiWallet?: Prisma.AiWalletCreateNestedOneWithoutUserInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCredentialsInput = {
@@ -2383,6 +2588,7 @@ export type UserUncheckedCreateWithoutCredentialsInput = {
   mentorAssignments?: Prisma.MentorAssignmentUncheckedCreateNestedManyWithoutMentorInput
   reviewsGiven?: Prisma.ProjectReviewUncheckedCreateNestedManyWithoutReviewerInput
   aiWallet?: Prisma.AiWalletUncheckedCreateNestedOneWithoutUserInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCredentialsInput = {
@@ -2424,6 +2630,7 @@ export type UserUpdateWithoutCredentialsInput = {
   mentorAssignments?: Prisma.MentorAssignmentUpdateManyWithoutMentorNestedInput
   reviewsGiven?: Prisma.ProjectReviewUpdateManyWithoutReviewerNestedInput
   aiWallet?: Prisma.AiWalletUpdateOneWithoutUserNestedInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCredentialsInput = {
@@ -2449,6 +2656,7 @@ export type UserUncheckedUpdateWithoutCredentialsInput = {
   mentorAssignments?: Prisma.MentorAssignmentUncheckedUpdateManyWithoutMentorNestedInput
   reviewsGiven?: Prisma.ProjectReviewUncheckedUpdateManyWithoutReviewerNestedInput
   aiWallet?: Prisma.AiWalletUncheckedUpdateOneWithoutUserNestedInput
+  enterpriseSsoProviders?: Prisma.EnterpriseSsoProviderUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -2469,6 +2677,7 @@ export type UserCountOutputType = {
   mentorAssignments: number
   reviewsGiven: number
   credentials: number
+  enterpriseSsoProviders: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2484,6 +2693,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   mentorAssignments?: boolean | UserCountOutputTypeCountMentorAssignmentsArgs
   reviewsGiven?: boolean | UserCountOutputTypeCountReviewsGivenArgs
   credentials?: boolean | UserCountOutputTypeCountCredentialsArgs
+  enterpriseSsoProviders?: boolean | UserCountOutputTypeCountEnterpriseSsoProvidersArgs
 }
 
 /**
@@ -2580,6 +2790,13 @@ export type UserCountOutputTypeCountCredentialsArgs<ExtArgs extends runtime.Type
   where?: Prisma.CredentialWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountEnterpriseSsoProvidersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.EnterpriseSsoProviderWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -2605,6 +2822,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   reviewsGiven?: boolean | Prisma.User$reviewsGivenArgs<ExtArgs>
   aiWallet?: boolean | Prisma.User$aiWalletArgs<ExtArgs>
   credentials?: boolean | Prisma.User$credentialsArgs<ExtArgs>
+  enterpriseSsoProviders?: boolean | Prisma.User$enterpriseSsoProvidersArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -2658,6 +2876,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   reviewsGiven?: boolean | Prisma.User$reviewsGivenArgs<ExtArgs>
   aiWallet?: boolean | Prisma.User$aiWalletArgs<ExtArgs>
   credentials?: boolean | Prisma.User$credentialsArgs<ExtArgs>
+  enterpriseSsoProviders?: boolean | Prisma.User$enterpriseSsoProvidersArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -2681,6 +2900,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     reviewsGiven: Prisma.$ProjectReviewPayload<ExtArgs>[]
     aiWallet: Prisma.$AiWalletPayload<ExtArgs> | null
     credentials: Prisma.$CredentialPayload<ExtArgs>[]
+    enterpriseSsoProviders: Prisma.$EnterpriseSsoProviderPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -3100,6 +3320,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   reviewsGiven<T extends Prisma.User$reviewsGivenArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$reviewsGivenArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectReviewPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   aiWallet<T extends Prisma.User$aiWalletArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$aiWalletArgs<ExtArgs>>): Prisma.Prisma__AiWalletClient<runtime.Types.Result.GetResult<Prisma.$AiWalletPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   credentials<T extends Prisma.User$credentialsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$credentialsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CredentialPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  enterpriseSsoProviders<T extends Prisma.User$enterpriseSsoProvidersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$enterpriseSsoProvidersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EnterpriseSsoProviderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3872,6 +4093,30 @@ export type User$credentialsArgs<ExtArgs extends runtime.Types.Extensions.Intern
   take?: number
   skip?: number
   distinct?: Prisma.CredentialScalarFieldEnum | Prisma.CredentialScalarFieldEnum[]
+}
+
+/**
+ * User.enterpriseSsoProviders
+ */
+export type User$enterpriseSsoProvidersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the EnterpriseSsoProvider
+   */
+  select?: Prisma.EnterpriseSsoProviderSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the EnterpriseSsoProvider
+   */
+  omit?: Prisma.EnterpriseSsoProviderOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EnterpriseSsoProviderInclude<ExtArgs> | null
+  where?: Prisma.EnterpriseSsoProviderWhereInput
+  orderBy?: Prisma.EnterpriseSsoProviderOrderByWithRelationInput | Prisma.EnterpriseSsoProviderOrderByWithRelationInput[]
+  cursor?: Prisma.EnterpriseSsoProviderWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.EnterpriseSsoProviderScalarFieldEnum | Prisma.EnterpriseSsoProviderScalarFieldEnum[]
 }
 
 /**

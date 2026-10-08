@@ -4082,6 +4082,7 @@ export type MemberScalarFieldEnum = (typeof MemberScalarFieldEnum)[keyof typeof 
 export const EnterpriseSsoProviderScalarFieldEnum = {
   id: 'id',
   organizationId: 'organizationId',
+  userId: 'userId',
   providerId: 'providerId',
   issuer: 'issuer',
   domain: 'domain',

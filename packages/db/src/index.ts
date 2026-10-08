@@ -3,6 +3,10 @@ import { Pool } from "pg";
 import { PrismaClient } from "./generated/prisma/client";
 
 export * from "./generated/prisma/client";
+export * from "./env";
+export * from "./repositories/commerce-repository";
+export * from "./repositories/ai-wallet-repository";
+export * from "../prisma/seed";
 
 export interface DbClientOptions {
   connectionString?: string;
