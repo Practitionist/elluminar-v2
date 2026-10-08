@@ -42,9 +42,60 @@ export type R2GuardrailValidationResult =
     }
   | {
       valid: false;
-      code: "UNSUPPORTED_MIME_TYPE" | "INVALID_CONTENT_LENGTH" | "FILE_SIZE_EXCEEDS_LIMIT";
+      code:
+        | "INVALID_OBJECT_KEY"
+        | "UNSUPPORTED_MIME_TYPE"
+        | "INVALID_CONTENT_LENGTH"
+        | "FILE_SIZE_EXCEEDS_LIMIT";
       message: string;
     };
+
+/**
+ * Strictly validates an R2 object key to prevent directory traversal (`..`, `.`),
+ * encoded dot/slash tricks (`%2e`, `%2f`, `%5c`), leading/trailing/empty slashes,
+ * null bytes, and non-printable control characters.
+ */
+export function validateR2ObjectKey(
+  rawKey: string
+): { valid: true; normalizedKey: string } | { valid: false; message: string } {
+  const trimmed = rawKey.trim();
+  if (trimmed.length < 3 || trimmed.length > 512) {
+    return {
+      valid: false,
+      message: `R2 objectKey length must be between 3 and 512 characters (got ${trimmed.length}).`,
+    };
+  }
+
+  if (
+    trimmed.startsWith("/") ||
+    trimmed.endsWith("/") ||
+    trimmed.includes("\\") ||
+    /[\x00-\x1f\x7f\s]/.test(trimmed) ||
+    /%2e|%2f|%5c/i.test(trimmed)
+  ) {
+    return {
+      valid: false,
+      message: `Unsafe or malformed R2 objectKey "${rawKey}".`,
+    };
+  }
+
+  const segments = trimmed.split("/");
+  for (const segment of segments) {
+    if (
+      !segment ||
+      segment === "." ||
+      segment === ".." ||
+      !/^[a-zA-Z0-9._-]+$/.test(segment)
+    ) {
+      return {
+        valid: false,
+        message: `Path traversal or unsafe segment "${segment}" is prohibited in R2 objectKey "${rawKey}".`,
+      };
+    }
+  }
+
+  return { valid: true, normalizedKey: trimmed };
+}
 
 /**
  * Validates strict artifact MIME type & byte-size guardrails before issuing a Cloudflare R2 upload presign URL:
@@ -156,16 +207,29 @@ export type PresignUploadResult =
     }
   | {
       status: "REJECTED";
-      code: "UNSUPPORTED_MIME_TYPE" | "INVALID_CONTENT_LENGTH" | "FILE_SIZE_EXCEEDS_LIMIT";
+      code:
+        | "INVALID_OBJECT_KEY"
+        | "UNSUPPORTED_MIME_TYPE"
+        | "INVALID_CONTENT_LENGTH"
+        | "FILE_SIZE_EXCEEDS_LIMIT";
       message: string;
     };
 
 /**
- * Enforces MIME/size guardrails and generates a short-lived signed `PutObjectCommand` URL for Cloudflare R2.
+ * Enforces objectKey path safety + MIME/size guardrails and generates a short-lived signed `PutObjectCommand` URL for Cloudflare R2.
  */
 export async function generateR2PresignedUploadUrl(
   input: PresignUploadRequest
 ): Promise<PresignUploadResult> {
+  const keyCheck = validateR2ObjectKey(input.objectKey);
+  if (!keyCheck.valid) {
+    return {
+      status: "REJECTED",
+      code: "INVALID_OBJECT_KEY",
+      message: keyCheck.message,
+    };
+  }
+
   const guardrail = validateR2ArtifactUploadGuardrail({
     contentType: input.contentType,
     contentLengthBytes: input.contentLengthBytes,
@@ -184,7 +248,7 @@ export async function generateR2PresignedUploadUrl(
 
   const command = new PutObjectCommand({
     Bucket: bucketName,
-    Key: input.objectKey,
+    Key: keyCheck.normalizedKey,
     ContentType: guardrail.contentType,
     ContentLength: input.contentLengthBytes,
   });
@@ -197,7 +261,7 @@ export async function generateR2PresignedUploadUrl(
     status: "PRESIGNED",
     uploadUrl,
     bucketName,
-    objectKey: input.objectKey,
+    objectKey: keyCheck.normalizedKey,
     contentType: guardrail.contentType,
     category: guardrail.category,
     maxSizeBytes: guardrail.maxSizeBytes,
@@ -225,12 +289,17 @@ export interface PresignReplayResult {
 export async function generateR2PresignedReplayUrl(
   input: PresignReplayRequest
 ): Promise<PresignReplayResult> {
+  const keyCheck = validateR2ObjectKey(input.objectKey);
+  if (!keyCheck.valid) {
+    throw new Error(`INVALID_OBJECT_KEY: ${keyCheck.message}`);
+  }
+
   const expiresInSeconds = input.expiresInSeconds ?? 3600; // Default 60 minutes
   const { client, bucketName } = createR2S3Client(input.r2Config);
 
   const command = new GetObjectCommand({
     Bucket: bucketName,
-    Key: input.objectKey,
+    Key: keyCheck.normalizedKey,
     ...(input.responseContentType
       ? { ResponseContentType: input.responseContentType }
       : {}),
@@ -243,7 +312,8 @@ export async function generateR2PresignedReplayUrl(
   return {
     replayUrl,
     bucketName,
-    objectKey: input.objectKey,
+    objectKey: keyCheck.normalizedKey,
     expiresInSeconds,
   };
 }
+

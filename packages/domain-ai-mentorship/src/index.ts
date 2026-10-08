@@ -96,11 +96,29 @@ export function computeAiTokenCreditDebit(params: {
   creditsPerThousandInputTokens?: bigint;
   creditsPerThousandOutputTokens?: bigint;
 }): bigint {
+  if (
+    !Number.isFinite(params.inputTokens) ||
+    !Number.isFinite(params.outputTokens) ||
+    params.inputTokens < 0 ||
+    params.outputTokens < 0
+  ) {
+    throw new RangeError(
+      `Token counts must be finite non-negative numbers (in=${params.inputTokens}, out=${params.outputTokens})`
+    );
+  }
+
   const inRate = params.creditsPerThousandInputTokens ?? 2n;
   const outRate = params.creditsPerThousandOutputTokens ?? 8n;
 
-  const inCost = (BigInt(params.inputTokens) * inRate + 999n) / 1000n;
-  const outCost = (BigInt(params.outputTokens) * outRate + 999n) / 1000n;
+  if (inRate < 0n || outRate < 0n) {
+    throw new RangeError("Token credit rates must be non-negative");
+  }
+
+  const inTokensBigInt = BigInt(Math.ceil(params.inputTokens));
+  const outTokensBigInt = BigInt(Math.ceil(params.outputTokens));
+
+  const inCost = (inTokensBigInt * inRate + 999n) / 1000n;
+  const outCost = (outTokensBigInt * outRate + 999n) / 1000n;
   return inCost + outCost;
 }
 

@@ -53,7 +53,11 @@ export function calculateIndiaGstBreakdown(params: {
     throw new RangeError("taxableAmountMinor must be non-negative");
   }
 
-  const supplierStateCode = params.supplierStateCode.trim().padStart(2, "0");
+  const rawSupplierState = params.supplierStateCode.trim();
+  if (!rawSupplierState) {
+    throw new Error("supplierStateCode cannot be empty");
+  }
+  const supplierStateCode = rawSupplierState.padStart(2, "0");
   const placeOfSupplyStateCode = params.buyerGstin
     ? extractStateCodeFromGstin(params.buyerGstin)
     : (params.buyerStateCode ?? supplierStateCode).trim().padStart(2, "0");

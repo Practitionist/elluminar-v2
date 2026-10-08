@@ -234,26 +234,27 @@ export function settleAiCreditReservation(
       `actualConsumedCredits cannot be negative, got ${actualConsumedCredits}`
     );
   }
-  if (actualConsumedCredits > reservedCredits) {
-    throw new RangeError(
-      `actualConsumedCredits (${actualConsumedCredits}) exceeds reservedCredits (${reservedCredits})`
-    );
-  }
 
-  const refundedCredits = reservedCredits - actualConsumedCredits;
+  const boundedConsumedCredits =
+    actualConsumedCredits > reservedCredits
+      ? reservedCredits
+      : actualConsumedCredits;
+
+  const refundedCredits = reservedCredits - boundedConsumedCredits;
 
   return {
     status: "SETTLED",
     settlementKind: "PARTIAL_OR_EXACT_DEBIT",
     reservedCredits,
-    consumedCredits: actualConsumedCredits,
+    consumedCredits: boundedConsumedCredits,
     refundedCredits,
     nextWalletState: {
       ...wallet,
       balanceCredits: wallet.balanceCredits + refundedCredits,
       lockedCredits: wallet.lockedCredits - reservedCredits,
-      cumulativeConsumedCredits: cumulativeConsumed + actualConsumedCredits,
+      cumulativeConsumedCredits: cumulativeConsumed + boundedConsumedCredits,
       version: wallet.version + 1,
     },
   };
 }
+

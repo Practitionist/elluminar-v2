@@ -163,6 +163,8 @@ export function evaluateWebhookOutboxIdempotency(params: {
 
 /**
  * Verifies Razorpay `x-razorpay-signature` header using constant-time HMAC-SHA256 comparison.
+ * Explicitly validates hex format and equal buffer byte lengths prior to `timingSafeEqual`
+ * so malformed or truncated headers can never throw an uncaught `RangeError`.
  */
 export function verifyRazorpayWebhookSignature(params: {
   rawBody: string;
@@ -174,16 +176,24 @@ export function verifyRazorpayWebhookSignature(params: {
     return false;
   }
 
-  const expectedHex = createHmac("sha256", webhookSecret)
-    .update(rawBody, "utf8")
-    .digest("hex");
-
-  const sigBuf = Buffer.from(signature, "utf8");
-  const expectedBuf = Buffer.from(expectedHex, "utf8");
-
-  if (sigBuf.length !== expectedBuf.length) {
+  const normalizedSignatureHex = signature.trim().toLowerCase();
+  if (!/^[0-9a-f]{64}$/.test(normalizedSignatureHex)) {
     return false;
   }
 
-  return timingSafeEqual(sigBuf, expectedBuf);
+  const expectedDigestBuf = createHmac("sha256", webhookSecret)
+    .update(rawBody, "utf8")
+    .digest();
+
+  const providedDigestBuf = Buffer.from(normalizedSignatureHex, "hex");
+
+  if (
+    providedDigestBuf.byteLength !== expectedDigestBuf.byteLength ||
+    providedDigestBuf.byteLength !== 32
+  ) {
+    return false;
+  }
+
+  return timingSafeEqual(providedDigestBuf, expectedDigestBuf);
 }
+

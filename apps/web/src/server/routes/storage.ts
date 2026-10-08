@@ -4,32 +4,29 @@ import { z } from "zod";
 import {
   generateR2PresignedReplayUrl,
   generateR2PresignedUploadUrl,
+  validateR2ObjectKey,
   type AllowedR2MimeType,
 } from "../storage/r2-presigner";
 
+const SafeR2ObjectKeySchema = z
+  .string()
+  .trim()
+  .min(3)
+  .max(512)
+  .refine((val) => validateR2ObjectKey(val).valid, {
+    message:
+      "Path traversal ('..'), leading/double slashes, encoded slashes, or unsafe characters are prohibited in objectKey",
+  });
+
 const PresignUploadSchema = z.object({
-  objectKey: z
-    .string()
-    .trim()
-    .min(3)
-    .max(512)
-    .refine((val) => !val.includes(".."), {
-      message: "Path traversal segments ('..') are not allowed in objectKey",
-    }),
+  objectKey: SafeR2ObjectKeySchema,
   contentType: z.string().trim().min(1),
   contentLengthBytes: z.number().int().positive(),
   expiresInSeconds: z.number().int().min(60).max(3600).optional(),
 });
 
 const PresignReplaySchema = z.object({
-  objectKey: z
-    .string()
-    .trim()
-    .min(3)
-    .max(512)
-    .refine((val) => !val.includes(".."), {
-      message: "Path traversal segments ('..') are not allowed in objectKey",
-    }),
+  objectKey: SafeR2ObjectKeySchema,
   responseContentType: z
     .enum([
       "audio/ogg; codecs=opus",

@@ -195,6 +195,12 @@ export class PrismaCommerceRepository {
       throw new DoubleEntryImbalanceError(0n, journalSpec.idempotencyKey);
     }
 
+    for (const entry of journalSpec.entries) {
+      if (entry.amountMinor === 0n) {
+        throw new DoubleEntryImbalanceError(0n, journalSpec.idempotencyKey);
+      }
+    }
+
     const netSum = journalSpec.entries.reduce(
       (sum, entry) => sum + entry.amountMinor,
       0n,

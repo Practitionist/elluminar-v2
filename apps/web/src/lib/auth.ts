@@ -1,3 +1,4 @@
+import { domainToASCII } from "node:url";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { sso } from "@better-auth/sso";
@@ -9,12 +10,22 @@ import {
 
 /**
  * Guard helper integrated with `@elluminar/domain-identity` to ensure personal consumer
- * email domains (`gmail.com`, `outlook.com`, `yahoo.com`, `icloud.com`, etc.) can NEVER
- * be registered or provisioned as an Enterprise/University OIDC or SAML tenant domain.
+ * email domains (`gmail.com`, `googlemail.com`, `outlook.com`, `yahoo.com`, `icloud.com`, etc.)
+ * and their subdomains can NEVER be registered or provisioned as an Enterprise/University OIDC or SAML tenant domain.
  */
 export function assertEnterpriseSsoDomainAllowed(domain: string): string {
-  const normalizedDomain = domain.trim().toLowerCase();
-  if (!normalizedDomain || normalizedDomain.includes("@")) {
+  const stripped = domain.trim().toLowerCase().replace(/\.+$/, "");
+  if (
+    !stripped ||
+    stripped.includes("@") ||
+    stripped.startsWith(".") ||
+    stripped.includes("..") ||
+    /\s/.test(stripped)
+  ) {
+    throw new Error(`Invalid enterprise tenant DNS domain: "${domain}"`);
+  }
+  const normalizedDomain = domainToASCII(stripped).toLowerCase();
+  if (!normalizedDomain) {
     throw new Error(`Invalid enterprise tenant DNS domain: "${domain}"`);
   }
   if (isPersonalEmailDomain(normalizedDomain)) {

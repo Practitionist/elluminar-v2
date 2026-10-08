@@ -170,7 +170,8 @@ export function computeProjectEscrowSplit(
 }
 
 /**
- * Generates the balanced 4-leg Double-Entry Capture Journal locking Mentor & Author shares in ESCROW_LOCKED.
+ * Generates the balanced Double-Entry Capture Journal locking Mentor & Author shares in ESCROW_LOCKED.
+ * Safely omits zero-amount credit legs when floor rounding on tiny minor-unit amounts or custom 0-bps shares yields 0n.
  */
 export function createProjectCaptureEscrowJournal(params: {
   orderId: string;
@@ -185,12 +186,18 @@ export function createProjectCaptureEscrowJournal(params: {
   mentorShareBps?: number;
   authorRoyaltyBps?: number;
 }): { journal: BalancedJournal; split: ProjectSplitResult } {
+  if (params.netAmountMinor <= 0n) {
+    throw new DoubleEntryInvariantError(
+      `Project capture journal requires positive netAmountMinor (> 0n), got ${params.netAmountMinor}`
+    );
+  }
+
   const split = computeProjectEscrowSplit(params.netAmountMinor, {
     mentorShareBps: params.mentorShareBps,
     authorRoyaltyBps: params.authorRoyaltyBps,
   });
 
-  const entries: LedgerEntrySpec[] = [
+  const rawEntries: LedgerEntrySpec[] = [
     {
       accountId: params.buyerClearingAccountId,
       ownerType: "USER",
@@ -220,6 +227,8 @@ export function createProjectCaptureEscrowJournal(params: {
       amountMinor: split.platformShareMinor,
     },
   ];
+
+  const entries = rawEntries.filter((entry) => entry.amountMinor !== 0n);
 
   const journal = createBalancedJournal({
     idempotencyKey: `project-capture-escrow:${params.orderId}`,
@@ -254,12 +263,24 @@ export function createEscrowReleaseJournal(params: {
     );
   }
 
-  return createBalancedJournal({
-    idempotencyKey: `project-escrow-release:${params.projectInstanceId}`,
-    referenceType: "PROJECT_INSTANCE",
-    referenceId: params.projectInstanceId,
-    description: `Escrow-to-Available Release on final PASS for ProjectInstance ${params.projectInstanceId}`,
-    entries: [
+  if (params.mentorEscrowMinor < 0n || params.authorRoyaltyEscrowMinor < 0n) {
+    throw new RangeError(
+      `Escrow release amounts must be non-negative (mentor=${params.mentorEscrowMinor}, author=${params.authorRoyaltyEscrowMinor})`
+    );
+  }
+
+  if (
+    params.mentorEscrowMinor === 0n &&
+    params.authorRoyaltyEscrowMinor === 0n
+  ) {
+    throw new DoubleEntryInvariantError(
+      `Escrow release journal for ProjectInstance ${params.projectInstanceId} requires at least one positive escrow balance`
+    );
+  }
+
+  const entries: LedgerEntrySpec[] = [];
+  if (params.mentorEscrowMinor > 0n) {
+    entries.push(
       {
         accountId: params.mentorEscrowAccountId,
         ownerType: "MENTOR",
@@ -273,7 +294,12 @@ export function createEscrowReleaseJournal(params: {
         ownerId: params.mentorUserId,
         bucket: "AVAILABLE",
         amountMinor: params.mentorEscrowMinor,
-      },
+      }
+    );
+  }
+
+  if (params.authorRoyaltyEscrowMinor > 0n) {
+    entries.push(
       {
         accountId: params.tenantEscrowAccountId,
         ownerType: "TENANT",
@@ -287,8 +313,16 @@ export function createEscrowReleaseJournal(params: {
         ownerId: params.tenantOrganizationId,
         bucket: "AVAILABLE",
         amountMinor: params.authorRoyaltyEscrowMinor,
-      },
-    ],
+      }
+    );
+  }
+
+  return createBalancedJournal({
+    idempotencyKey: `project-escrow-release:${params.projectInstanceId}`,
+    referenceType: "PROJECT_INSTANCE",
+    referenceId: params.projectInstanceId,
+    description: `Escrow-to-Available Release on final PASS for ProjectInstance ${params.projectInstanceId}`,
+    entries,
   });
 }
 
@@ -332,6 +366,13 @@ export function validateTenantCoupon(params: {
 }): CouponValidationResult {
   const { coupon, orderOrganizationId, subtotalMinor } = params;
   const now = params.now ?? new Date();
+
+  if (subtotalMinor < 0n) {
+    throw new RangeError("subtotalMinor cannot be negative");
+  }
+  if (coupon.discountValue < 0n) {
+    throw new RangeError("coupon.discountValue cannot be negative");
+  }
 
   if (coupon.organizationId !== orderOrganizationId) {
     return { valid: false, reason: "TENANT_MISMATCH" };
@@ -385,6 +426,11 @@ export function processZeroRupeeCheckout(params: {
   subtotalMinor: bigint;
   discountMinor: bigint;
 }): ZeroRupeeCheckoutResult {
+  if (params.subtotalMinor < 0n || params.discountMinor < 0n) {
+    throw new RangeError(
+      "subtotalMinor and discountMinor must be non-negative for ₹0 checkout evaluation"
+    );
+  }
   const net = params.subtotalMinor - params.discountMinor;
   if (net !== 0n) {
     throw new Error(
